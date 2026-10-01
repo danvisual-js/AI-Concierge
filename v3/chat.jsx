@@ -152,8 +152,11 @@
     const submit = async (e) => {
       e.preventDefault();
       if (cloud) {
-        try { await window.dvCloud.signIn(pw.trim()); setSent(true); setErr(false); }
-        catch (x) { setErr(true); }
+        try {
+          const r = await window.dvCloud.signIn(pw.trim());
+          setErr(false);
+          if (r === 'already') { window.dvOwner.set(true); onClose(); } else setSent(true);
+        } catch (x) { setErr(x.message || 'Couldn’t send the link.'); }
         return;
       }
       if (pw.trim().toLowerCase() === OWNER_CODE) { window.dvOwner.set(true); setPw(''); onClose(); }
@@ -199,7 +202,7 @@
                   <input id="ownerpw" type={cloud ? 'email' : 'password'} value={pw} autoFocus autoComplete={cloud ? 'email' : 'current-password'}
                     onChange={e => { setPw(e.target.value); setErr(false); }} />
                 </div>
-                {err && <p className="mono" style={{ color: 'var(--ink)', fontSize: 11 }}>{cloud ? 'Couldn’t send the link — check the address.' : 'That’s not it — try again.'}</p>}
+                {err && <p className="mono" style={{ color: 'var(--ink)', fontSize: 11 }}>{cloud ? err : 'That’s not it — try again.'}</p>}
                 <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
                   <button className="btn solid" type="submit"><span>{cloud ? 'Send link' : 'Sign in'}</span></button>
                   <button className="btn" type="button" onClick={onClose}><span>Cancel</span></button>

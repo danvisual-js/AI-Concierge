@@ -13,7 +13,9 @@
   const rawRemove = Storage.prototype.removeItem;
   let sb = null, session = null;
 
-  const isOwner = () => !!(session && (!C.OWNER_EMAIL || session.user.email.toLowerCase() === C.OWNER_EMAIL.toLowerCase()));
+  const norm = s => String(s || '').trim().toLowerCase();
+  // No owner email configured = nobody can edit. Never fall open.
+  const isOwner = () => !!(session && C.OWNER_EMAIL && norm(session.user.email) === norm(C.OWNER_EMAIL));
   const canWrite = () => enabled && isOwner();
 
   const timers = {};
@@ -81,9 +83,20 @@
     return n;
   };
 
+  // Only the owner address can request a link, and Supabase is told never to
+  // create an account from this form. Already signed in? Skip the email.
   const signIn = async email => {
-    const { error } = await sb.auth.signInWithOtp({ email, options: { emailRedirectTo: location.origin + location.pathname } });
-    if (error) throw error;
+    if (!C.OWNER_EMAIL) throw new Error('Owner email isn’t set in config.js.');
+    if (norm(email) !== norm(C.OWNER_EMAIL)) throw new Error('This site only accepts its owner.');
+    if (isOwner()) return 'already';
+    const { error } = await sb.auth.signInWithOtp({ email: norm(email), options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname } });
+    if (error) {
+      const m = (error.message || '').toLowerCase();
+      if (error.status === 429 || m.includes('rate limit') || m.includes('seconds')) throw new Error('Too many links requested. Wait a minute, or use the last link you received.');
+      if (m.includes('signups not allowed') || m.includes('not found')) throw new Error('No account for that email yet. See setup step 01.');
+      throw error;
+    }
+    return 'sent';
   };
   const signOut = async () => { await sb.auth.signOut(); session = null; window.dvOwner && window.dvOwner.set(false); };
 
