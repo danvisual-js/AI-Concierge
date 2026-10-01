@@ -146,6 +146,7 @@
   function AccountSheet({ owner, onClose, onLogos }) {
     const cloud = window.dvCloud && window.dvCloud.enabled;
     const [pw, setPw] = useState('');
+    const [pass, setPass] = useState('');
     const [err, setErr] = useState(false);
     const [sent, setSent] = useState(false);
     const [mig, setMig] = useState('');
@@ -153,9 +154,9 @@
       e.preventDefault();
       if (cloud) {
         try {
-          const r = await window.dvCloud.signIn(pw.trim());
+          const r = await window.dvCloud.signIn(pw.trim(), pass);
           setErr(false);
-          if (r === 'already') { window.dvOwner.set(true); onClose(); } else setSent(true);
+          if (r === 'already' || r === 'in') { window.dvOwner.set(true); setPass(''); onClose(); } else setSent(true);
         } catch (x) { setErr(x.message || 'Couldn’t send the link.'); }
         return;
       }
@@ -193,7 +194,7 @@
             <>
               <h3>Owner sign-in</h3>
               <p>{cloud
-                ? 'Visitors don’t need this. Enter your email and we’ll send a one-tap sign-in link.'
+                ? 'Visitors don’t need this. Sign in with your email and password — or leave the password blank to get a one-tap link.'
                 : 'Visitors don’t need this. Signing in turns on image drops and inline text editing for this browser.'}</p>
               {sent ? <p className="mono" style={{ fontSize: 11 }}>Link sent to {pw}. Open it on this device.</p> : (
               <form onSubmit={submit} style={{ display: 'grid', gap: 14, marginTop: 4 }}>
@@ -202,9 +203,16 @@
                   <input id="ownerpw" type={cloud ? 'email' : 'password'} value={pw} autoFocus autoComplete={cloud ? 'email' : 'current-password'}
                     onChange={e => { setPw(e.target.value); setErr(false); }} />
                 </div>
+                {cloud && (
+                  <div className={'field' + (pass ? ' on' : '')}>
+                    <label htmlFor="ownerpass">Password</label>
+                    <input id="ownerpass" type="password" value={pass} autoComplete="current-password"
+                      onChange={e => { setPass(e.target.value); setErr(false); }} />
+                  </div>
+                )}
                 {err && <p className="mono" style={{ color: 'var(--ink)', fontSize: 11 }}>{cloud ? err : 'That’s not it — try again.'}</p>}
                 <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
-                  <button className="btn solid" type="submit"><span>{cloud ? 'Send link' : 'Sign in'}</span></button>
+                  <button className="btn solid" type="submit"><span>{cloud ? (pass ? 'Sign in' : 'Send link') : 'Sign in'}</span></button>
                   <button className="btn" type="button" onClick={onClose}><span>Cancel</span></button>
                 </div>
               </form>)}

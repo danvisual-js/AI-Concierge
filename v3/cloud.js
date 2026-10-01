@@ -85,10 +85,16 @@
 
   // Only the owner address can request a link, and Supabase is told never to
   // create an account from this form. Already signed in? Skip the email.
-  const signIn = async email => {
+  const signIn = async (email, password) => {
     if (!C.OWNER_EMAIL) throw new Error('Owner email isn’t set in config.js.');
     if (norm(email) !== norm(C.OWNER_EMAIL)) throw new Error('This site only accepts its owner.');
     if (isOwner()) return 'already';
+    if (password) {
+      const { data, error } = await sb.auth.signInWithPassword({ email: norm(email), password });
+      if (error) throw new Error((error.message || '').toLowerCase().includes('invalid') ? 'Wrong email or password.' : error.message);
+      session = data.session;
+      return 'in';
+    }
     const { error } = await sb.auth.signInWithOtp({ email: norm(email), options: { shouldCreateUser: false, emailRedirectTo: location.origin + location.pathname } });
     if (error) {
       const m = (error.message || '').toLowerCase();
