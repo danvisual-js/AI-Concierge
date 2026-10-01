@@ -223,13 +223,33 @@
     },
   ];
 
-  function Rich({ t, as = 'span', ...rest }) {
-    const As = as;
+  // Strings may be legacy **markdown** or HTML from the Content studio's editor.
+  const BLOCK = /<(p|h[1-6]|ul|ol|blockquote|figure|img|hr|pre)\b/i;
+  const cache = new Map();
+  const clean = html => {
+    if (cache.has(html)) return cache.get(html);
+    const d = new DOMParser().parseFromString(html, 'text/html');
+    d.querySelectorAll('script,style,iframe,object,embed,link,meta').forEach(n => n.remove());
+    d.body.querySelectorAll('*').forEach(el => {
+      [...el.attributes].forEach(a => { if (/^on/i.test(a.name) || (/^(href|src)$/i.test(a.name) && /^\s*javascript:/i.test(a.value))) el.removeAttribute(a.name); });
+      if (el.tagName === 'A') { el.setAttribute('target', '_blank'); el.setAttribute('rel', 'noreferrer'); }
+    });
+    const out = d.body.innerHTML; cache.set(html, out); return out;
+  };
+  function Rich({ t, as = 'span', className, ...rest }) {
+    const str = String(t == null ? '' : t);
+    if (/<[a-z][\s\S]*>/i.test(str)) {
+      const block = BLOCK.test(str);
+      const As = block ? 'div' : as;
+      const cls = [className, block && 'rt'].filter(Boolean).join(' ') || undefined;
+      return <As {...rest} className={cls} dangerouslySetInnerHTML={{ __html: clean(str) }} />;
+    }
+    const As = as; rest.className = className;
     return <As {...rest}>{String(t).split(/(\*\*[^*]+\*\*)/g).map((s, i) =>
       s.startsWith('**') && s.endsWith('**')
         ? <strong key={i} style={{ fontWeight: 600, color: 'var(--ink)' }}>{s.slice(2, -2)}</strong>
         : <React.Fragment key={i}>{s}</React.Fragment>)}</As>;
   }
 
-  Object.assign(window, { PROJECTS: P, Rich });
+  Object.assign(window, { PROJECTS: window.dvContent.bind('projects', P), Rich });
 })();

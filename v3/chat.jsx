@@ -49,6 +49,8 @@
     { id: 'talk', q: 'How do I get in touch?', kind: 'panel', panel: 'talk', theme: 'health', say: 'What it is, who it’s for, and what’s stuck — that’s plenty.' },
   ];
 
+  window.dvContent.bind('intents', INTENTS);
+
   const MATCH = [
     [/summar|tl;?dr|in short|highlight|gist|recap/i, 'summary'],
     [/resum|cv|experience|background/i, 'resume'], [/who is|about (dan|you)|bio/i, 'bio'],
@@ -143,7 +145,7 @@
 
   // light owner gate: keeps the edit affordance out of the visitor's way and off
   // the chat input. Not real auth — it guards a local-only editing mode.
-  function AccountSheet({ owner, onClose, onLogos }) {
+  function AccountSheet({ owner, onClose, onLogos, onContent }) {
     const cloud = window.dvCloud && window.dvCloud.enabled;
     const [pw, setPw] = useState('');
     const [pass, setPass] = useState('');
@@ -180,10 +182,11 @@
             <>
               <h3>You’re signed in</h3>
               <p>{cloud
-                ? <>Editing is on as {window.dvCloud.email}. Uploads and changes publish live for every visitor.</>
-                : <>Editing is on — image slots accept drops and text is editable across the site. Changes save to this browser.</>}</p>
+                ? <>Editing is on as {window.dvCloud.email}. Uploads publish instantly; text edits go live when you hit Publish in Edit content.</>
+                : <>Editing is on — image slots accept drops, and Edit content opens the editor for text and chat replies. Changes save to this browser.</>}</p>
               <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap', marginTop: 4 }}>
-                <button className="btn solid" onClick={onLogos}><span>Manage logos</span></button>
+                <button className="btn solid" onClick={onContent}><span>Edit content</span></button>
+                <button className="btn" onClick={onLogos}><span>Manage logos</span></button>
                 {cloud && <button className="btn" onClick={migrate} title="Push anything made in this browser before going live"><span>Publish local edits</span></button>}
                 <button className="btn" onClick={() => { cloud ? window.dvCloud.signOut() : window.dvOwner.set(false); onClose(); }}><span>Sign out</span></button>
                 <button className="btn" onClick={onClose}><span>Keep editing</span></button>
@@ -447,6 +450,9 @@
     const [owner, setOwner] = useState(false);
     const [acct, setAcct] = useState(false);
     const [logos, setLogos] = useState(false);
+    const [studio, setStudio] = useState(false);
+    const [, setRev] = useState(0);
+    useEffect(() => { const f = () => setRev(r => r + 1); addEventListener('content-change', f); return () => removeEventListener('content-change', f); }, []);
     const [stage, setStage] = useState(null);
     useEffect(() => { window.__stage = (id) => setStage(id); window.__read = (id) => setReading(id); }, []);
     useEffect(() => {
@@ -483,7 +489,10 @@
       setThinking(true);
       const history = msgs;
       const matchIntent = (s) => {
-        const hit = MATCH.find(([re]) => re.test(s));
+        // owner-added trigger phrases win over the built-in patterns
+        const low = s.toLowerCase();
+        const own = INTENTS.find(i => typeof i.keys === 'string' && i.keys.split(',').some(k => k.trim() && low.includes(k.trim().toLowerCase())));
+        const hit = own ? [null, own.id] : MATCH.find(([re]) => re.test(s));
         if (!hit) return null;
         const it = INTENTS.find(i => i.id === hit[1]);
         // "strong" = they named the section outright rather than brushing past it
@@ -683,7 +692,8 @@
           return <Reader p={PROJECTS[idx]} onClose={() => setReading(null)} onNext={() => setReading(next.id)} />;
         })()}
         {acct && <AccountSheet owner={owner} onClose={() => setAcct(false)}
-          onLogos={() => { setAcct(false); setLogos(true); }} />}
+          onLogos={() => { setAcct(false); setLogos(true); }} onContent={() => { setAcct(false); setStudio(true); }} />}
+        {studio && <Studio onClose={() => setStudio(false)} />}
         {logos && <LogoSheet onClose={() => setLogos(false)} />}
         {stage && <AppStage id={stage} onClose={() => setStage(null)} />}
       </div>

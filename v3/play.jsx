@@ -57,5 +57,6 @@
     );
   }
 
+  window.dvContent.bind('play', PLAY);
   Object.assign(window, { PlayGallery, PlayCard, PLAY });
 })();

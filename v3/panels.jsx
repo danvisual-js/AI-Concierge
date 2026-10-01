@@ -25,12 +25,12 @@
   ];
 
   const SKILLS = [
-    ['Design leadership', 'Owning design end-to-end, operating without a director in the room, stakeholder management up to VP and founder level'],
-    ['AI & emerging patterns', 'Multi-agent LLM flows, trust and memory controls, interaction patterns with no prior art'],
-    ['Regulated product', 'Designing with legal and clinical review in the loop — reframing constraints instead of fighting them'],
-    ['Conversion & measurement', 'Funnel diagnosis, shipped interventions, before/after numbers on every claim'],
-    ['Visual & brand', 'Editorial systems, campaign work, motion — the visual craft underneath the product work'],
-    ['0-to-1 and systems', 'Platform architecture that lets the next launch reconfigure instead of rebuild'],
+    { h: 'Design leadership', b: 'Owning design end-to-end, operating without a director in the room, stakeholder management up to VP and founder level' },
+    { h: 'AI & emerging patterns', b: 'Multi-agent LLM flows, trust and memory controls, interaction patterns with no prior art' },
+    { h: 'Regulated product', b: 'Designing with legal and clinical review in the loop — reframing constraints instead of fighting them' },
+    { h: 'Conversion & measurement', b: 'Funnel diagnosis, shipped interventions, before/after numbers on every claim' },
+    { h: 'Visual & brand', b: 'Editorial systems, campaign work, motion — the visual craft underneath the product work' },
+    { h: '0-to-1 and systems', b: 'Platform architecture that lets the next launch reconfigure instead of rebuild' },
   ];
 
   function Sheet({ title, kicker, children }) {
@@ -73,7 +73,7 @@
         <div style={{ marginTop: 34, display: 'grid', gap: 16 }}>
           <div className="mono">What he’s known for</div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 14 }}>
-            {SKILLS.map(([h, b]) => (
+            {SKILLS.map(({ h, b }) => (
               <div key={h} className="tile">
                 <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>{h}</div>
                 <p style={{ marginTop: 7, fontSize: 13.5, lineHeight: 1.55, color: 'var(--dim)' }}>{b}</p>
@@ -90,22 +90,27 @@
     );
   }
 
+  const BIO = {
+    lead: 'I’m Dan — a product designer who takes the parts of a product people dread, and makes them feel obvious.',
+    body: [
+      'Most of my work happens where the stakes are real: health, money, and the systems people rely on at work. That means designing with legal and clinical teams in the room, and treating their constraints as a design problem rather than a blocker — the emergency-screening screen at GoodRx didn’t get removed, it got reframed, and conversion went up because of it.',
+      'I came up through visual design, and it still shows: I care about type, rhythm, and the craft of a page as much as the flow through it. That’s the work in the Play section — campaigns, editorial systems, motion.',
+      'I work in the open. Messy Figma files, real user calls, prototypes in front of engineers early. At Doctronic I paired directly with founding engineering so the standards lived in the build instead of a library nobody opens.',
+    ].map(t => '<p>' + t + '</p>').join(''),
+    tags: ['Bay Area, California', 'Product design lead', 'Open to senior / principal'],
+  };
+  window.dvContent.bind('roles', ROLES); window.dvContent.bind('side', SIDE); window.dvContent.bind('skills', SKILLS); window.dvContent.bind('bio', BIO);
+
   function Bio() {
     return (
       <Sheet kicker="About" title="Short version, then the longer one.">
         <div className="biog" style={{ display: 'grid', gridTemplateColumns: 'minmax(220px,290px) minmax(0,1fr)', gap: 'clamp(20px,3vw,44px)' }}>
           <media-slot id="bio-portrait" ratio="4/5" label="Portrait of Dan"></media-slot>
           <div style={{ display: 'grid', gap: 18, maxWidth: '60ch' }}>
-            <p style={{ fontSize: 'clamp(18px,1.9vw,24px)', lineHeight: 1.42, letterSpacing: '-.02em', color: 'var(--ink)' }}>
-              I’m Dan — a product designer who takes the parts of a product people dread, and makes them feel obvious.
-            </p>
-            {[
-              'Most of my work happens where the stakes are real: health, money, and the systems people rely on at work. That means designing with legal and clinical teams in the room, and treating their constraints as a design problem rather than a blocker — the emergency-screening screen at GoodRx didn’t get removed, it got reframed, and conversion went up because of it.',
-              'I came up through visual design, and it still shows: I care about type, rhythm, and the craft of a page as much as the flow through it. That’s the work in the Play section — campaigns, editorial systems, motion.',
-              'I work in the open. Messy Figma files, real user calls, prototypes in front of engineers early. At Doctronic I paired directly with founding engineering so the standards lived in the build instead of a library nobody opens.',
-            ].map((t, i) => <p key={i} style={{ fontSize: 15, lineHeight: 1.68, color: 'var(--ink-2)', margin: 0 }}>{t}</p>)}
+            <p style={{ fontSize: 'clamp(18px,1.9vw,24px)', lineHeight: 1.42, letterSpacing: '-.02em', color: 'var(--ink)' }}>{BIO.lead}</p>
+            <Rich t={BIO.body} as="div" className="rt" style={{ fontSize: 15, lineHeight: 1.68, color: 'var(--ink-2)' }} />
             <div style={{ display: 'flex', gap: 9, flexWrap: 'wrap' }}>
-              {['Bay Area, California', 'Product design lead', 'Open to senior / principal'].map(t => (
+              {(BIO.tags || []).map(t => (
                 <span key={t} className="mono tag">{t}</span>
               ))}
             </div>
