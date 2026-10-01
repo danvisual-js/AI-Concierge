@@ -152,6 +152,8 @@
     const [err, setErr] = useState(false);
     const [sent, setSent] = useState(false);
     const [mig, setMig] = useState('');
+    const [diag, setDiag] = useState(null);
+    const runDiag = async () => { setDiag('run'); try { setDiag(await window.dvCloud.diagnose()); } catch (x) { setDiag([{ l: 'Check', ok: false, v: x.message }]); } };
     const submit = async (e) => {
       e.preventDefault();
       if (cloud) {
@@ -192,6 +194,17 @@
                 <button className="btn" onClick={onClose}><span>Keep editing</span></button>
               </div>
               {mig && <p className="mono" style={{ fontSize: 11 }}>{mig}</p>}
+              {cloud && <button className="chip" style={{ justifySelf: 'start' }} onClick={runDiag}>{diag === 'run' ? 'Checking…' : 'Test connection'}</button>}
+              {Array.isArray(diag) && (
+                <div style={{ display: 'grid', gap: 6, fontSize: 12.5, lineHeight: 1.45 }}>
+                  {diag.map((d, i) => (
+                    <div key={i} style={{ display: 'grid', gridTemplateColumns: '18px minmax(0,1fr)', gap: 8 }}>
+                      <span style={{ color: d.ok ? 'var(--accent)' : '#d0453b' }}>{d.ok ? '✓' : '✕'}</span>
+                      <span><b>{d.l}</b> — <span style={{ color: 'var(--dim)', wordBreak: 'break-word' }}>{d.v}</span></span>
+                    </div>
+                  ))}
+                </div>
+              )}
             </>
           ) : (
             <>

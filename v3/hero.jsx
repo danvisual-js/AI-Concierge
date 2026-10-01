@@ -203,21 +203,22 @@
   const logoKey = c => 'logo-' + (c.id || c.n).toLowerCase().replace(/\W+/g, '');
 
   function useLogos() {
-    const read = () => {
+    // Resolves IndexedDB-backed logos to object URLs; cloud ones are plain URLs.
+    const read = async () => {
       const out = {};
-      CO.forEach(c => {
-        try {
-          const v = JSON.parse(localStorage.getItem('ms:' + logoKey(c)) || '{}');
-          if (v.src) out[logoKey(c)] = v.src;
-        } catch (e) {}
-      });
+      await Promise.all(CO.map(async c => {
+        const v = await window.dvMedia.resolve(logoKey(c));
+        if (v && v.src) out[logoKey(c)] = v.src;
+      }));
       return out;
     };
-    const [m, setM] = useState(read);
+    const [m, setM] = useState({});
     useEffect(() => {
-      const on = () => setM(read());
+      let live = true;
+      const on = () => read().then(o => live && setM(o));
+      on();
       addEventListener('media-change', on);
-      return () => removeEventListener('media-change', on);
+      return () => { live = false; removeEventListener('media-change', on); };
     }, []);
     return m;
   }

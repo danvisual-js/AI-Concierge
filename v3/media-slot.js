@@ -78,6 +78,13 @@ button[data-c="ok"]:hover{filter:brightness(1.15);background:var(--ms-accent,#6d
         { src: saved.src || '', type: saved.type || '' });
       this._wiredAt = performance.now();
       // Blob-backed media resolves after the first paint.
+      if (this.state.src.startsWith('data:') && !(window.dvCloud && window.dvCloud.enabled)) {
+        // Legacy: move inline data-URLs out of localStorage to free its quota.
+        const du = this.state.src;
+        fetch(du).then(r => r.blob()).then(b => idbPut(KEY(this.id), b).then(() => {
+          this.state.src = URL.createObjectURL(b); this.save();
+        })).catch(() => {});
+      }
       if (this.state.src === 'idb') {
         this.state.src = '';
         idbGet(KEY(this.id)).then(b => {
@@ -96,7 +103,10 @@ button[data-c="ok"]:hover{filter:brightness(1.15);background:var(--ms-accent,#6d
         // never persist an object URL — it dies with the page
         if (keep.src.startsWith('blob:')) keep.src = 'idb';
         localStorage.setItem(KEY(this.id), JSON.stringify(keep));
-      } catch (e) {}
+      } catch (e) {
+        this._busy = { pct: 100, msg: '', err: 'Browser storage is full — remove an old upload, or sign in with the cloud.' };
+        setTimeout(() => { this._busy = null; this.render(); this.wire(); }, 5000);
+      }
     }
 
     frameCss(f) {
@@ -355,7 +365,7 @@ input{display:none}
       const fail = m => {
         this._busy = { pct: 100, msg: '', err: m };
         this.render();
-        setTimeout(() => { this._busy = null; this.render(); this.wire(); }, 3200);
+        setTimeout(() => { this._busy = null; this.render(); this.wire(); }, Math.max(3200, m.length * 70));
       };
       if (window.dvCloud && window.dvCloud.canWrite()) {
         try {
@@ -364,11 +374,12 @@ input{display:none}
           this.state.type = f.type;
           this._busy = { pct: 100, msg: '✓ saved' }; this.render();
           setTimeout(done, 700);
-        } catch (e) { fail('Upload failed — check your connection and try again.'); }
+        } catch (e) { fail(e && e.message ? e.message : 'Upload failed.'); }
         return;
       }
-      if (big) {
-        // Blob → IndexedDB → object URL. No base64 round trip, no quota wall.
+      if (big || true) {
+        // Blob → IndexedDB → object URL for every local upload. localStorage
+        // caps out at ~5 MB per site, so data-URLs there fail after a few images.
         try {
           this._busy = { pct: 55, msg: 'storing' }; this.render();
           await idbPut(KEY(this.id), f);
@@ -406,6 +417,17 @@ input{display:none}
   };
   addEventListener('DOMContentLoaded', async () => {
     if (window.dvCloud) await window.dvCloud.ready;
+    if (!(window.dvCloud && window.dvCloud.enabled)) {
+      Object.keys(localStorage).filter(k => k.startsWith('ms:')).forEach(async k => {
+        try {
+          const v = JSON.parse(localStorage.getItem(k));
+          if (!v || !v.src || !v.src.startsWith('data:')) return;
+          const b = await (await fetch(v.src)).blob();
+          await idbPut(k, b);
+          v.src = 'idb'; localStorage.setItem(k, JSON.stringify(v));
+        } catch (e) {}
+      });
+    }
     const url = new URLSearchParams(location.search).get('edit');
     const on = url === '1' || (url !== '0' && localStorage.getItem('dv-owner') === '1');
     setOwner(on);

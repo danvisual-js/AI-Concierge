@@ -41,12 +41,44 @@
   }
 
   const upload = async (key, blob, name) => {
-    if (!canWrite()) throw new Error('not signed in');
+    if (!canWrite()) throw new Error(session ? 'Signed in as ' + session.user.email + ', which isn’t OWNER_EMAIL in config.js.' : 'Not signed in.');
     const ext = (name && name.includes('.') ? name.split('.').pop() : (blob.type.split('/')[1] || 'bin')).toLowerCase();
     const path = `${key.replace(/[^a-z0-9_-]/gi, '_')}/${Date.now()}.${ext}`;
     const { error } = await sb.storage.from(C.BUCKET || 'media').upload(path, blob, { contentType: blob.type, upsert: true, cacheControl: '31536000' });
-    if (error) throw error;
+    if (error) throw new Error(explain(error));
     return sb.storage.from(C.BUCKET || 'media').getPublicUrl(path).data.publicUrl;
+  };
+
+  const explain = e => {
+    const m = String((e && (e.message || e.error)) || e || '');
+    const l = m.toLowerCase();
+    if (l.includes('bucket not found')) return 'Storage bucket “' + (C.BUCKET || 'media') + '” doesn’t exist — run the setup SQL (step 01).';
+    if (l.includes('row-level security') || l.includes('violates') || l.includes('unauthorized') || l.includes('403')) return 'Supabase refused the upload — the email in the storage policy doesn’t match your sign-in email.';
+    if (l.includes('exceeded') || l.includes('too large') || l.includes('413')) return 'File too large for your Supabase plan (free tier: 50 MB per file).';
+    if (l.includes('mime') || l.includes('invalid')) return 'Supabase rejected this file type: ' + m;
+    if (l.includes('failed to fetch') || l.includes('network')) return 'Couldn’t reach Supabase — check SUPABASE_URL in config.js.';
+    return m || 'Unknown error';
+  };
+
+  // Step-by-step check of every piece the editor relies on.
+  const diagnose = async () => {
+    const out = [];
+    const ok = (l, v) => out.push({ l, ok: true, v }), bad = (l, v) => out.push({ l, ok: false, v });
+    if (!enabled) { bad('Config', 'SUPABASE_URL / SUPABASE_ANON_KEY empty in v3/config.js'); return out; }
+    ok('Config', C.SUPABASE_URL);
+    if (!session) { bad('Signed in', 'No session — sign in first'); return out; }
+    ok('Signed in', session.user.email);
+    if (!isOwner()) { bad('Owner match', 'OWNER_EMAIL in config.js is “' + (C.OWNER_EMAIL || '(blank)') + '”'); return out; }
+    ok('Owner match', C.OWNER_EMAIL);
+    let r = await sb.from('content').select('key').limit(1);
+    r.error ? bad('Read content table', explain(r.error)) : ok('Read content table', 'OK');
+    r = await sb.from('content').upsert({ key: 'dv3.__check', value: String(Date.now()) });
+    r.error ? bad('Write content table', explain(r.error)) : ok('Write content table', 'OK');
+    const path = '__check/' + Date.now() + '.txt';
+    r = await sb.storage.from(C.BUCKET || 'media').upload(path, new Blob(['ok'], { type: 'text/plain' }), { upsert: true });
+    if (r.error) bad('Upload to storage', explain(r.error));
+    else { ok('Upload to storage', 'OK'); await sb.storage.from(C.BUCKET || 'media').remove([path]); }
+    return out;
   };
 
   const pull = async () => {
@@ -118,6 +150,6 @@
     await Promise.race([pull(), new Promise(r => setTimeout(r, 5000))]);
   })().catch(e => console.warn('[cloud]', e));
 
-  window.dvCloud = { enabled, ready, canWrite, isOwner, upload, migrate, signIn, signOut,
+  window.dvCloud = { enabled, ready, canWrite, isOwner, upload, migrate, signIn, signOut, diagnose,
     get email() { return session && session.user.email; } };
 })();
