@@ -117,7 +117,10 @@
 
   // Only the owner address can request a link, and Supabase is told never to
   // create an account from this form. Already signed in? Skip the email.
-  const signIn = async (email, password) => {
+  const urlOK = () => /^https:\/\/[a-z0-9-]+\.supabase\.co\/?$/i.test(String(C.SUPABASE_URL || '').trim());
+  const friendly = e => { const m = String(e && e.message || e); return /not valid JSON|Unexpected token|Failed to fetch|NetworkError/i.test(m) ? new Error(urlOK() ? 'Can’t reach Supabase. Check that the project isn’t paused (Supabase dashboard → Restore).' : 'SUPABASE_URL in config.js looks wrong (“' + C.SUPABASE_URL + '”). It must be the Project URL, like https://abcd1234.supabase.co — nothing after .co.') : e; };
+  const signIn = async (email, password) => { try { return await signIn0(email, password); } catch (e) { throw friendly(e); } };
+  const signIn0 = async (email, password) => {
     if (!C.OWNER_EMAIL) throw new Error('Owner email isn’t set in config.js.');
     if (norm(email) !== norm(C.OWNER_EMAIL)) throw new Error('This site only accepts its owner.');
     if (isOwner()) return 'already';
