@@ -18,14 +18,14 @@
     const name = Object.keys(CITIES).find(k => low.includes(k)) || 'san francisco';
     const [la, lo] = CITIES[name];
     const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${la}&longitude=${lo}&current=temperature_2m,weather_code,wind_speed_10m&daily=temperature_2m_max,temperature_2m_min&temperature_unit=fahrenheit&wind_speed_unit=mph&timezone=America%2FLos_Angeles&forecast_days=1`);
-    const j = await r.json(); const c = j.current, d = j.daily;
+    const j = await safeJson(r); const c = j.current, d = j.daily;
     const city = name === 'sf' ? 'San Francisco' : name.replace(/\b\w/g, m => m.toUpperCase());
     return { city, text: `${city} right now: ${Math.round(c.temperature_2m)}°F and ${WMO(c.weather_code)}, wind ${Math.round(c.wind_speed_10m)} mph. Today ${Math.round(d.temperature_2m_min[0])}–${Math.round(d.temperature_2m_max[0])}°F.` };
   }
   async function wiki(term) {
-    const s = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&srlimit=1&format=json&origin=*`).then(r => r.json());
+    const s = await fetch(`https://en.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(term)}&srlimit=1&format=json&origin=*`).then(safeJson);
     const t = s.query && s.query.search[0] && s.query.search[0].title; if (!t) return null;
-    const p = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(t)}`).then(r => r.json());
+    const p = await fetch(`https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(t)}`).then(safeJson);
     return p.extract ? { title: t, text: p.extract.split(/(?<=\.)\s/).slice(0, 2).join(' ') } : null;
   }
   const isWeather = q => /\b(weather|temperature|forecast|rain|raining|fog|foggy|sunny|cold|hot|warm)\b/i.test(q);
@@ -40,8 +40,10 @@
   async function complete(p) {
     if (window.claude && window.claude.complete) return window.claude.complete(p);
     const r = await fetch(ENDPOINT, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ ...p, search: true }) });
-    if (!r.ok) { serverOK = false; throw new Error('ai ' + r.status); }
-    serverOK = true; return (await r.json()).text;
+    const raw = await r.text(); let j = null;
+    try { j = JSON.parse(raw); } catch (e) { /* host returned an HTML page — /api isn't deployed */ }
+    if (!r.ok || !j || !j.text) { serverOK = false; console.warn('[concierge] AI endpoint unavailable:', r.status, j ? j.error : raw.slice(0, 60)); throw new Error('ai-unavailable'); }
+    serverOK = true; return j.text;
   }
   async function liveChat(q, history, ctx) {
     const sys = `You are the portfolio concierge for Dan (Daniel) Tieu, a Senior Product Designer in the SF Bay Area (healthcare, AI, design systems; Doctronic, GoodRx, Estée Lauder, Sephora). ${PERSONA}
@@ -51,7 +53,12 @@ Reply with plain text only.`;
     return String(await complete({ system: sys, messages: msgs, max_tokens: 300 })).trim();
   }
 
+  const safeJson = r => r.ok ? r.json() : Promise.reject(new Error('http ' + r.status));
   window.think = async (q, history, matchIntent) => {
+    try { return await think5(q, history, matchIntent); }
+    catch (e) { console.warn('[concierge]', e); try { return await base(q, history, matchIntent); } catch (e2) { return { type: 'talk', say: 'I lost my train of thought for a second — try asking that another way, or ask about Dan’s work.' }; } }
+  };
+  async function think5(q, history, matchIntent) {
     const direct = matchIntent(q);
     if (direct && direct.strong) return base(q, history, matchIntent);
     const ai = (window.claude && window.claude.complete) || serverOK !== false;
@@ -79,5 +86,5 @@ Reply with plain text only.`;
       if (w) return { type: 'talk', say: `Not my usual beat, but here’s the short version: ${w.text} — via Wikipedia. Anything about Dan’s work I can pull up?` };
     }
     return r;
-  };
+  }
 })();
