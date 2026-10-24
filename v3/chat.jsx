@@ -713,5 +713,5 @@
     );
   }
 
-  Object.assign(window, { App, Stages });
+  Object.assign(window, { App, Stages, AccountSheet, CaseCard, INTENTS, MATCH, NEXT });
 })();

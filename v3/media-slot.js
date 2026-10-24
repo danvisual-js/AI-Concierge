@@ -156,16 +156,16 @@ ${this.frameCss(s.frame)}
 img,video{width:100%;height:100%;object-fit:${s.fit};display:block}
 .ph{display:grid;gap:7px;justify-items:center;padding:16px;text-align:center}
 .ph b{font:500 13px/1.35 var(--ms-font,system-ui,sans-serif);color:var(--ms-ink,#222);max-width:26ch}
-.ph i{font:400 10.5px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.13em;text-transform:uppercase;color:var(--ms-faint,#888);font-style:normal}
-.inner.cover{place-items:stretch;background:linear-gradient(150deg,color-mix(in oklab,var(--ms-tint,#5b3fd6) 22%,transparent),color-mix(in oklab,var(--ms-tint,#5b3fd6) 6%,transparent));border:0!important;position:relative;overflow:hidden}
-.inner.cover:before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(135deg,transparent 0 11px,color-mix(in oklab,var(--ms-tint,#5b3fd6) 7%,transparent) 11px 12px)}
+.ph i{font:500 10.5px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--ms-faint-strong,#4f4a58);font-style:normal}
+.inner.cover{place-items:stretch;background:#f2f1f4;border:0!important;position:relative;overflow:hidden}
+.inner.cover:before{content:none}
 .cov{position:relative;box-sizing:border-box;display:grid;gap:9px;justify-items:start;align-content:end;justify-self:stretch;align-self:stretch;width:100%;height:100%;padding:clamp(14px,7%,26px)}
-.cov-m{font:400 9px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase;color:var(--ms-faint,#888)}
+.cov-m{font:500 10.5px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.1em;text-transform:uppercase;color:var(--ms-faint-strong,#4f4a58)}
 .drop{outline:2px solid var(--ms-accent,#5b3fd6);outline-offset:3px}
-.bar2{position:absolute;left:8px;right:8px;bottom:8px;display:flex;gap:6px;flex-wrap:wrap;opacity:0;transform:translateY(6px);transition:opacity .25s,transform .25s;z-index:5}
-.wrap:hover .bar2{opacity:1;transform:none}
-button{font:500 10px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.09em;text-transform:uppercase;padding:7px 9px;border-radius:99px;border:1px solid rgba(255,255,255,.3);background:rgba(16,13,22,.82);color:#fff;cursor:pointer;backdrop-filter:blur(8px)}
-button:hover{background:#fff;color:#100d16}
+.bar2{position:absolute;left:8px;right:8px;top:8px;display:flex;gap:6px;flex-wrap:wrap;z-index:5}
+button{font:600 11px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.06em;text-transform:uppercase;min-height:28px;padding:8px 11px;border-radius:6px;border:1px solid rgba(255,255,255,.55);background:#15131a;color:#fff;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25)}
+button:hover{background:#4b32c9;border-color:#4b32c9}
+button:focus-visible{outline:2px solid #b6aaff;outline-offset:2px}
 input{display:none}
 .busy{position:absolute;inset:0;z-index:6;display:grid;gap:10px;place-content:center;justify-items:center;background:rgba(14,11,20,.78);backdrop-filter:blur(4px);color:#fff;font:400 10px/1 var(--ms-mono,ui-monospace,monospace);letter-spacing:.14em;text-transform:uppercase}
 .bar3{width:min(180px,60%);height:3px;border-radius:99px;background:rgba(255,255,255,.22);overflow:hidden}
@@ -440,7 +440,7 @@ input{display:none}
   const urlCache = {};
   const resolve = async id => {
     let v; try { v = JSON.parse(localStorage.getItem(KEY(id)) || '{}'); } catch (e) { return null; }
-    if (!v.src) return null;
+    if (!v.src) return v.link ? v : null;
     if (v.src === 'idb') {
       if (!urlCache[id]) { const b = await idbGet(KEY(id)); if (!b) return null; urlCache[id] = URL.createObjectURL(b); }
       return Object.assign({}, v, { src: urlCache[id] });

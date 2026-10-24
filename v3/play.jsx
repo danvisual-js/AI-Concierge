@@ -3,21 +3,21 @@
 // has an owner-editable media slot. Exports window.PlayGallery, window.PLAY.
 (() => {
   const PLAY = [
-    { id: 'sephora', co: 'Sephora', role: 'Digital marketing design',
+    { id: 'sephora', co: 'Sephora', role: 'Digital marketing design', year: '2015–16',
       d: 'Campaign pages, email and promotional creative for beauty launches — built to hold up across a heavily merchandised template system.',
-      url: 'https://www.danielvisual.com/play/sephora-digital-6hb9b' },
-    { id: 'oldnavy', co: 'Old Navy', role: 'Digital design',
+      url: 'https://www.danielvisual.com/play/sephora-digital-6hb9b', shots: ['Key visual', 'Detail', 'In context'] },
+    { id: 'oldnavy', co: 'Old Navy', role: 'Digital design', year: '2016–17',
       d: 'Seasonal promo and merchandising creative across web and email, working inside a fast weekly campaign cadence.',
-      url: 'https://www.danielvisual.com/play/old-navy-digital-r84fd' },
-    { id: 'amazon', co: 'Amazon WFS', role: 'Brand & digital design',
+      url: 'https://www.danielvisual.com/play/old-navy-digital-r84fd', shots: ['Key visual', 'Detail', 'In context'] },
+    { id: 'amazon', co: 'Amazon WFS', role: 'Brand & digital design', year: '2021',
       d: 'Identity and communication design for an Amazon fulfillment programme — internal-facing work that had to read clearly at speed.',
-      url: 'https://www.danielvisual.com/play/amazon-wfs-fztdw' },
-    { id: 'livenation', co: 'Live Nation', role: 'Event & tour creative',
+      url: 'https://www.danielvisual.com/play/amazon-wfs-fztdw', shots: ['Key visual', 'Detail', 'In context'] },
+    { id: 'livenation', co: 'Live Nation', role: 'Event & tour creative', year: '2014–15',
       d: 'Key art, social and ticketing promo for live events, where the artist brand always leads and the layout has to get out of the way.',
-      url: 'https://www.danielvisual.com/play/live-nation-dxxzm' },
-    { id: 'vaxsmart', co: 'Vax Smart', role: 'Identity & campaign design',
+      url: 'https://www.danielvisual.com/play/live-nation-dxxzm', shots: ['Key visual', 'Detail', 'In context'] },
+    { id: 'vaxsmart', co: 'Vax Smart', role: 'Identity & campaign design', year: '2021',
       d: 'Identity and campaign system for a public-health vaccination effort — plain language, high trust, zero clinical coldness.',
-      url: 'https://www.danielvisual.com/play/vaxsmart-nndht' },
+      url: 'https://www.danielvisual.com/play/vaxsmart-nndht', shots: ['Key visual', 'Detail', 'In context'] },
   ];
 
   function PlayCard({ p, i }) {

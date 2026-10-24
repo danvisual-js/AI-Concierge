@@ -5,87 +5,114 @@
 
   const ROLES = [
     { co: 'Doctronic', role: 'Product Design Lead, AI Health', when: 'Feb 2026 – Jun 2026',
-      note: 'Shipped the first AI-authorized prescription refill flow in the US. Designed the trust-and-privacy layer as a conversion surface, and codified standards with founding engineering during the React rebuild.' },
-    { co: 'GoodRx', role: 'Sr. Product Designer', when: 'Apr 2025 – Jan 2026',
-      note: 'Owned design end-to-end for GoodRx’s first subscription product. Built it as a reusable Conditions Platform; drove funnel conversion to an all-time-high 26.1% from 15.6%.' },
-    { co: 'Amyris — Stripes Beauty, Biossance, JVN, Rose Inc', role: 'Founding Designer / Product Design', when: 'Sep 2021 – Aug 2023',
-      note: 'Founding design for Naomi Watts’ menopause wellness brand; launched on schedule through a leadership gap. Portfolio funnel strategy: +25% conversion, −13% cart abandonment YoY.' },
-    { co: 'Estée Lauder Companies', role: 'Lead Product Designer, ShopEx', when: '2022',
-      note: 'Keyboard-first enterprise search in the in-store POS. Lookup 47s → 11s, rolled out across 30 brands and 5,000+ associates.' },
-    { co: 'Quicken', role: 'Product + Motion Designer', when: '2021',
-      note: 'Turned a 14-field retirement form into a live, scrubbable model. Abandon rate 81% → 34%; the slider became a Premier-wide primitive in 11 tools.' },
-    { co: 'Sephora', role: 'Product Designer, Learning & Development', when: '2020',
-      note: 'Five-minute mobile training drops for 30,000 beauty advisors, with a manager dashboard that turned completion into compliance proof. 94% weekly active in pilot.' },
+      note: 'Shipped the first AI-authorized prescription refill flow in the US — intake, eligibility, AI consult and clinician review. Designed the EHR medical-records experience and a trust-and-privacy layer (memory controls, delete-consult, incognito mode) that let patients govern how AI used their data. Prototyped end-to-end AI workflows in Figma, Claude Code and Claude Design.' },
+    { co: 'GoodRx', role: 'Sr. Product Designer, Telehealth Subscription', when: 'Apr 2025 – Jan 2026',
+      note: 'Shipped GoodRx’s first telehealth subscription platform under HIPAA-compliant guardrails — telehealth, prescription management and discreet home delivery in one experience. Redesigned the ED subscription funnel: signup CTR to an all-time high of 26.1%, up from 15.6%. Shipped retention features: shipping frequency, order history, cancellation survey, delay next order.' },
+    { co: 'The Estée Lauder Companies', role: 'Sr. Product Designer, Enterprise Design Systems', when: 'Oct 2023 – Apr 2025',
+      note: 'Directed an enterprise interaction design library — tokens, motion guidelines, specs and high-fidelity prototypes — adopted across 7+ luxury brands at global scale. Shipped Product Search & Filtering 2.0 with mobile-first filter logic.' },
+    { co: 'Amyris', brands: 'Stripes Beauty · Biossance · JVN Hair · Rose Inc · Costa Brazil', role: 'Sr. UI/UX Designer, Consumer Health & Wellness', when: 'Sep 2021 – Aug 2023',
+      note: 'Founding designer for Stripes Beauty, the 0-to-1 menopause wellness brand co-founded by Naomi Watts, launched 2022. Shopping-funnel optimisations lifted conversion +25% and cut bounce rate up to 40% across the portfolio; advanced search, cart/promo tools and livestream shopping.' },
+    { co: 'Sephora', role: 'Interaction Designer, Education & Learning', when: 'Nov 2017 – Jan 2021',
+      note: 'Built Sephora Education’s first design system across iOS, Android and web. Completed an ADA-ready, mobile-first LMS migration — 4.5/5 satisfaction, 20K+ weekly course completions, serving 30K+ in-store hires. Led 2–3 designers and producers through weekly critiques.' },
+  ];
+
+  const PREV = [
+    { co: 'Quicken', role: 'Sr. UI Designer', when: 'Aug 2021 – Nov 2021' },
+    { co: 'Amazon', role: 'Sr. Visual Designer', when: 'Mar 2021 – Aug 2021' },
+    { co: 'Old Navy (Gap Inc.)', role: 'Sr. Visual Designer', when: 'Nov 2016 – Nov 2017' },
+    { co: 'Sephora Digital Team', role: 'Visual Designer (Freelance)', when: 'Nov 2015 – Nov 2016' },
+    { co: 'Live Nation Entertainment', role: 'Web Design Coordinator', when: 'Jun 2014 – Nov 2015' },
+  ];
+
+  const EDU = [
+    { h: 'Education', b: 'UC Davis — B.A. Media Technology (2009) · General Assembly — Product Design (2021) · Google AI Professional Certificate (2026)' },
+    { h: 'Recognition', b: 'DANDA Awards Platinum — Condition Subscription for GoodRx (2026) · Sephora Values In Action (2019) · Adobe Creative Jam Top 10 (2021) · SacHackathon 1st Place (2021)' },
+    { h: 'Tools', b: 'Figma (advanced), Claude Code, Claude Design, MCP connectors, Adobe Creative Suite' },
   ];
 
   const SIDE = [
     { co: 'Design Quest', role: 'Playable RPG portfolio', when: '2026', note: 'Built solo with AI-assisted development. Live and playable in the browser.' },
     { co: 'VC Stock Screener', role: 'Fintech tool, design + build', when: '2026', note: 'Verdict-first screener. Designed and shipped solo with AI-assisted development.' },
-    { co: 'HomeBase', role: 'UX/Product Designer — SacHacks III', when: '2021', note: 'Community platform for exchanging donations, services and volunteer time. Led discovery, PM and end-to-end UI/UX. Winner, Best Entertaining Hack.' },
+    { co: 'HomeBase', role: 'UX/Product Designer — SacHacks III', when: '2021', note: 'Community platform for exchanging donations, services and volunteer time. Led discovery, PM and end-to-end UI/UX. 1st place.' },
   ];
 
   const SKILLS = [
-    { h: 'Design leadership', b: 'Owning design end-to-end, operating without a director in the room, stakeholder management up to VP and founder level' },
-    { h: 'AI & emerging patterns', b: 'Multi-agent LLM flows, trust and memory controls, interaction patterns with no prior art' },
-    { h: 'Regulated product', b: 'Designing with legal and clinical review in the loop — reframing constraints instead of fighting them' },
-    { h: 'Conversion & measurement', b: 'Funnel diagnosis, shipped interventions, before/after numbers on every claim' },
-    { h: 'Visual & brand', b: 'Editorial systems, campaign work, motion — the visual craft underneath the product work' },
-    { h: '0-to-1 and systems', b: 'Platform architecture that lets the next launch reconfigure instead of rebuild' },
+    { h: 'AI & tools', b: 'Claude Code, Claude Design, MCP connectors, AI-assisted prototyping, Figma (advanced), Adobe Creative Suite' },
+    { h: 'Product design', b: 'End-to-end product design, interaction design, information architecture, high-fidelity prototyping, design systems' },
+    { h: 'Research', b: 'Discovery interviews, usability testing, funnel & conversion analysis, A/B testing, evidence-driven iteration' },
+    { h: 'Brand & visual direction', b: 'Brand direction, visual design, art direction, motion guidelines, campaign & editorial systems' },
+    { h: 'Healthcare & regulated', b: 'HIPAA compliance, EHR design, trust & privacy patterns, clinical / legal partnership, ADA accessibility' },
   ];
 
-  function Sheet({ title, kicker, children }) {
+  function Sheet({ title, kicker, sub, children }) {
     return (
       <div style={{ animation: 'up .7s cubic-bezier(.16,1,.3,1) both' }}>
         <div className="mono" style={{ color: 'var(--accent)' }}>{kicker}</div>
-        <h2 style={{ marginTop: 13, fontSize: 'clamp(26px,3.2vw,42px)', fontWeight: 500, letterSpacing: '-.04em',
+        <h2 style={{ marginTop: 13, fontSize: 'clamp(26px,3.2vw,42px)', fontWeight: sub ? 650 : 500, letterSpacing: '-.04em',
           lineHeight: 1.05, color: 'var(--ink)' }}>{title}</h2>
+        {sub && <p className="rsub" style={{ marginTop: 10, fontSize: 'clamp(16px,1.5vw,20px)', color: 'var(--ink-2)', letterSpacing: '-.01em' }}>{sub}</p>}
         <div style={{ marginTop: 'clamp(24px,3vw,36px)' }}>{children}</div>
       </div>
     );
   }
 
-  function RoleList({ items }) {
+  const When = ({ w }) => { const [a, b] = String(w || '').split(/\s*[–-]\s*/); return <div className="mono rwhen" style={{ textAlign: 'right', lineHeight: 1.6 }}><div>{a}</div>{b && <div>– {b}</div>}</div>; };
+  function RoleList({ items, compact }) {
     return (
       <div style={{ borderTop: '1px solid var(--line-2)' }}>
-        {items.map((r, i) => (
-          <div key={i} className="rrow" style={{ display: 'grid', gridTemplateColumns: 'minmax(0,1fr) minmax(0,1.4fr) 140px',
-            gap: 'clamp(12px,2.2vw,30px)', padding: 'clamp(16px,2vw,24px) 0', borderBottom: '1px solid var(--line-2)', alignItems: 'start' }}>
-            <div>
-              <div style={{ fontSize: 'clamp(16px,1.7vw,19px)', fontWeight: 500, letterSpacing: '-.02em', color: 'var(--ink)' }}>{r.co}</div>
-              <div style={{ marginTop: 5, fontSize: 14, color: 'var(--dim)' }}>{r.role}</div>
+        {items.map((r, i) => {
+          const [co, brands] = r.brands ? [r.co, r.brands] : String(r.co).split(/\s+—\s+/);
+          return (
+            <div key={i} className="rrow" style={{ display: 'grid', gridTemplateColumns: 'minmax(180px,.8fr) minmax(0,2.4fr) 96px',
+              gap: 'clamp(14px,2.4vw,36px)', padding: compact ? '12px 0' : 'clamp(14px,1.6vw,20px) 0', borderBottom: '1px solid var(--line-2)', alignItems: 'start' }}>
+              <div>
+                <div style={{ fontSize: 'clamp(15px,1.4vw,17px)', fontWeight: 600, letterSpacing: '-.02em', color: 'var(--ink)' }}>{co}</div>
+                <div style={{ marginTop: 4, fontSize: 13.5, color: 'var(--dim)', lineHeight: 1.4 }}>{r.role}</div>
+                {brands && <div className="mono" style={{ marginTop: 6, fontSize: 10.5, lineHeight: 1.5, color: 'var(--dim)', textTransform: 'none', letterSpacing: '.02em' }}>{brands}</div>}
+              </div>
+              <p style={{ fontSize: 13.5, lineHeight: 1.55, color: 'var(--ink-2)', margin: 0, textWrap: 'pretty' }}>{r.note || ''}</p>
+              <When w={r.when} />
             </div>
-            <p style={{ fontSize: 14.5, lineHeight: 1.6, color: 'var(--ink-2)', margin: 0, textWrap: 'pretty' }}>{r.note}</p>
-            <div className="mono" style={{ textAlign: 'right' }}>{r.when}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     );
   }
 
   function Resume() {
+    const H = ({ children }) => <div className="mono" style={{ marginBottom: 12, color: 'var(--ink)' }}>{children}</div>;
     return (
-      <Sheet kicker="Résumé" title="Twelve years, consumer health to retail to AI.">
+      <Sheet kicker="Résumé" title="Daniel Tieu — Senior Product Designer" sub="Healthcare, AI & regulated digital products · San Francisco Bay Area">
+        <H>Experience</H>
         <RoleList items={ROLES} />
+        <div style={{ marginTop: 34 }}><H>Built with AI &amp; hackathons</H><RoleList items={SIDE} /></div>
+        <div style={{ marginTop: 34 }}><H>Previous roles</H><RoleList compact items={PREV} /></div>
         <div style={{ marginTop: 34 }}>
-          <div className="mono" style={{ marginBottom: 12 }}>Labs — built with AI, and at hackathons</div>
-          <RoleList items={SIDE} />
-        </div>
-        <div style={{ marginTop: 34, display: 'grid', gap: 16 }}>
-          <div className="mono">What he’s known for</div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(230px,1fr))', gap: 14 }}>
+          <H>Skills &amp; tools</H>
+          <div style={{ borderTop: '1px solid var(--line-2)' }}>
             {SKILLS.map(({ h, b }) => (
-              <div key={h} className="tile">
-                <div style={{ fontSize: 15, fontWeight: 500, color: 'var(--ink)' }}>{h}</div>
-                <p style={{ marginTop: 7, fontSize: 13.5, lineHeight: 1.55, color: 'var(--dim)' }}>{b}</p>
+              <div key={h} className="rrow" style={{ display: 'grid', gridTemplateColumns: 'minmax(180px,.8fr) minmax(0,2.4fr) 96px', gap: 'clamp(14px,2.4vw,36px)', padding: '14px 0', borderBottom: '1px solid var(--line-2)', alignItems: 'center' }}>
+                <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>{h}</div>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: 6 }}>{String(b).split(/\s*[,;]\s*/).filter(Boolean).map(t =>
+                  <span key={t} style={{ fontSize: 12.5, padding: '5px 10px', borderRadius: 999, background: 'var(--surface-2,#f4f3f6)', color: 'var(--ink)' }}>{t}</span>)}</div>
+                <span />
               </div>
             ))}
           </div>
         </div>
-        <div style={{ marginTop: 28, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
-          <a className="btn solid" href="mailto:hello@danielvisual.com?subject=Résumé request"><span>Request the PDF</span></a>
-          <a className="btn" href="https://www.linkedin.com/in/danieltieu/" target="_blank" rel="noreferrer"><span>LinkedIn ↗</span></a>
+        <div style={{ marginTop: 34 }}><H>Education &amp; recognition</H>
+          <div style={{ borderTop: '1px solid var(--line-2)' }}>{EDU.filter(x => x.h !== 'Tools').map(x => (
+            <div key={x.h} className="rrow" style={{ display: 'grid', gridTemplateColumns: 'minmax(180px,.8fr) minmax(0,2.4fr) 96px', gap: 'clamp(14px,2.4vw,36px)', padding: '14px 0', borderBottom: '1px solid var(--line-2)' }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>{x.h}</div>
+              <p style={{ fontSize: 13.5, lineHeight: 1.6, color: 'var(--ink-2)', margin: 0 }}>{x.b.split(' · ').map((t, i) => <span key={i} style={{ display: 'block' }}>{t}</span>)}</p><span />
+            </div>))}</div>
         </div>
-        <style>{`@media(max-width:760px){.rrow{grid-template-columns:minmax(0,1fr)!important}.rrow>div:last-child{text-align:left!important}}`}</style>
+        <div style={{ marginTop: 28, display: 'flex', gap: 10, flexWrap: 'wrap' }}>
+          <a className="btn solid" href="assets/Daniel_Tieu_Resume.pdf" download="Daniel_Tieu_Resume.pdf"><span>Download PDF ↓</span></a>
+          <a className="btn" href="https://www.linkedin.com/in/danieltieu/" target="_blank" rel="noreferrer"><span>LinkedIn ↗</span></a>
+          <a className="btn" href="mailto:danvisual.uxd@gmail.com"><span>danvisual.uxd@gmail.com</span></a>
+        </div>
+        <style>{`@media(max-width:760px){.rrow{grid-template-columns:minmax(0,1fr)!important}.rrow .rwhen{text-align:left!important;display:flex;gap:6px}}`}</style>
       </Sheet>
     );
   }
@@ -97,7 +124,7 @@
       'I came up through visual design, and it still shows: I care about type, rhythm, and the craft of a page as much as the flow through it. That’s the work in the Play section — campaigns, editorial systems, motion.',
       'I work in the open. Messy Figma files, real user calls, prototypes in front of engineers early. At Doctronic I paired directly with founding engineering so the standards lived in the build instead of a library nobody opens.',
     ].map(t => '<p>' + t + '</p>').join(''),
-    tags: ['Bay Area, California', 'Product design lead', 'Open to senior / principal'],
+    tags: ['San Francisco Bay Area', 'Senior product designer', 'Healthcare · AI · regulated products'],
   };
   window.dvContent.bind('roles', ROLES); window.dvContent.bind('side', SIDE); window.dvContent.bind('skills', SKILLS); window.dvContent.bind('bio', BIO);
 
@@ -334,7 +361,6 @@
 
           <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', paddingTop: 4, borderTop: '1px solid var(--line-2)' }}>
             <a className="chip" href="https://www.linkedin.com/in/danieltieu/" target="_blank" rel="noreferrer" style={{ marginTop: 18 }}>LinkedIn ↗</a>
-            <a className="chip" href="https://www.danielvisual.com/" target="_blank" rel="noreferrer" style={{ marginTop: 18 }}>danielvisual.com ↗</a>
           </div>
         </div>
       </Sheet>

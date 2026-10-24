@@ -110,7 +110,7 @@
       title: 'Telehealth subscription platform — 0-to-1, to an all-time-high 26.1% conversion',
       role: 'Sr. Product Designer', dates: 'Apr 2025 – Jan 2026', discipline: 'Telehealth',
       cats: ['health', 'numbers', 'zero-to-one'],
-      headline: { v: '26.1%', l: 'funnel conversion, all-time high' },
+      headline: { v: '26.1%', l: 'signup CTR, all-time high — up from 15.6%' },
       story: 'GoodRx had months to ship its first subscription product into a market Hims and Roman had already proven. Every screen touched medical compliance, so legal and clinical were in the room daily. The fast path was a single ED flow. I argued for the slower one — and then spent the six months after launch taking the funnel apart to find out why people were leaving.',
       pivot: { h: 'The pivot', b: 'Legal wanted a standalone emergency-screening question early in the flow. It was reading as alarming and pushing users out before intake. Instead of arguing to remove it, **I reframed the ask: merge the disclaimers into the Terms & Conditions screen with tappable detail links.** Same legal coverage, different placement. It took several rounds to land — and became the template for how I worked with legal on the rest of the funnel.' },
       sections: [
@@ -121,7 +121,7 @@
         { k: 'Testing', b: ['Three shipped, measured interventions:'], list: ['Merged emergency screening into T&Cs → onboarding-start conversion **17% → 20%**', 'Removed 3 warm-up questions and 2 milestone pages → reach-to-signup **5.54% → 7.84%**', 'Personalized dosage paths for returning patients → treatment-to-subscription **20% → 24.6%**'], after: 'Paired with a landing page redesign (**+24% CTR**), overall funnel conversion reached an all-time-high **26.1%**, up from 15.6%.' },
       ],
       result: ['First subscription product shipped on time, **May 2025**', 'Conversion diagnosis → intervention → **26.1% all-time high** (from 15.6%)', 'Platform architecture became the template for **3+ subsequent treatment lines**'],
-      metrics: [{ v: '26.1%', l: 'funnel conversion' }, { v: '+24%', l: 'landing page CTR' }, { v: '3+', l: 'lines on the platform' }],
+      metrics: [{ v: '26.1%', l: 'signup CTR (from 15.6%)' }, { v: '+24%', l: 'landing page CTR' }, { v: '3+', l: 'lines on the platform' }],
       shots: ['Before: standalone emergency-screening screen', 'After: merged into T&Cs with expandable detail'],
     },
     {
@@ -140,13 +140,13 @@
         { k: 'Testing', b: ['Funnel work across the portfolio was measured year over year: **+25% conversion** and **−13% cart abandonment**.'] },
       ],
       result: ['Launched **on schedule in 2022** despite the leadership gap', 'Portfolio funnel work drove **+25% conversion** and **−13% cart abandonment** YoY'],
-      metrics: [{ v: '+25%', l: 'conversion YoY' }, { v: '−13%', l: 'cart abandonment' }, { v: '6', l: 'brands in scope' }],
+      metrics: [{ v: '+25%', l: 'conversion YoY' }, { v: '−40%', l: 'bounce rate, up to' }, { v: '6', l: 'brands in scope' }],
       shots: ['Launch storefront — editorial system', 'Funnel work across the portfolio'],
     },
     {
-      id: 'shopex', client: 'Estée Lauder', tint: 'var(--slate)', year: '2022',
+      id: 'shopex', client: 'Estée Lauder', tint: 'var(--slate)', year: '2024',
       title: 'Enterprise search for 5,000 store associates across 7+ luxury brands',
-      role: 'Lead Product Designer, ShopEx', dates: '2022', discipline: 'Enterprise',
+      role: 'Sr. Product Designer, Enterprise Design Systems', dates: 'Oct 2023 – Apr 2025', discipline: 'Enterprise design systems',
       cats: ['enterprise', 'numbers'],
       headline: { v: '47s → 11s', l: 'average lookup time' },
       story: 'A customer asks for a shade in a MAC store. The associate has to check stock at a sister location, pull the customer’s last purchase, and confirm the formula — across six tools, while the customer stands there.',
@@ -165,7 +165,7 @@
     {
       id: 'quicken', client: 'Quicken', tint: 'var(--violet)', year: '2021',
       title: 'A retirement calculator you can actually play with',
-      role: 'Product + Motion Designer', dates: '2021', discipline: 'Fintech',
+      role: 'Sr. UI Designer', dates: 'Aug 2021 – Nov 2021', discipline: 'Fintech',
       cats: ['numbers', 'enterprise'],
       headline: { v: '81% → 34%', l: 'abandon rate' },
       story: 'Quicken Premier’s retirement calculator had 14 fields, one submit button, and a single “good luck” number at the end. Four out of five people never finished it.',
@@ -184,9 +184,9 @@
     {
       id: 'sephora', client: 'Sephora', tint: 'var(--plum)', year: '2020',
       title: 'Five-minute training for 30,000 beauty advisors',
-      role: 'Product Designer, Learning & Development', dates: '2020', discipline: 'Internal tools',
+      role: 'Interaction Designer, Education & Learning', dates: 'Nov 2017 – Jan 2021', discipline: 'Learning platform',
       cats: ['enterprise'],
-      headline: { v: '94%', l: 'weekly active in pilot' },
+      headline: { v: '20K+', l: 'weekly course completions on an ADA-ready LMS' },
       story: 'Sephora was rolling out 200+ new SKUs a year, and the training for them lived in PDFs, Slack threads, and a Drive nobody had access to. Advisors were expected to know the products cold, mid-shift, with a customer waiting.',
       pivot: { h: 'The pivot', b: 'Field research produced one constraint that decided the whole product: advisors have **5–7 minutes between customers**. Long enough to learn one thing, nowhere near long enough to open a deck. **The five-minute drop became the atomic unit** — everything else was designed around it.' },
       sections: [
@@ -197,7 +197,7 @@
         { k: 'Testing', b: ['A four-store pilot ran before global rollout and landed at a **94% weekly-active rate**; it became the standard delivery channel for new product launches to **30,000 advisors**.'] },
       ],
       result: ['**94%** weekly-active rate across pilot stores', 'Standard launch-training channel for **30,000** advisors'],
-      metrics: [{ v: '94%', l: 'weekly active' }, { v: '30k', l: 'advisors' }, { v: '5 min', l: 'average session' }],
+      metrics: [{ v: '20K+', l: 'weekly course completions' }, { v: '30K+', l: 'in-store hires served' }, { v: '4.5/5', l: 'satisfaction' }],
       shots: ['Drop library on mobile', 'Manager compliance dashboard'],
     },
     {
@@ -207,7 +207,7 @@
       dates: '2021 · SacHacks III', discipline: 'Civic / social impact',
       link: { label: 'Read the Devpost writeup ↗', url: 'https://devpost.com/software/homebase-dcbwt5' },
       cats: ['zero-to-one'],
-      headline: { v: 'Winner', l: 'Best Entertaining Hack' },
+      headline: { v: '1st', l: 'place — SacHackathon 2021' },
       story: 'Twelve months into the pandemic, unemployment in cities like Los Angeles sat at 10.6% against a 7.0% national average — and at the same time, neighbours were organising mask and PPE drives for frontline workers faster than any institution could. HomeBase was built for that second thing: a mobile platform where community members exchange donations, services and volunteer time directly.',
       pivot: { h: 'The reframe', b: 'The team started from a charity-directory idea. The research turned it into something closer to a neighbourhood exchange — the question became **“How might we make essential resources available for communities that are under-represented?”** which put discovery and local proximity, not org listings, at the centre of the product.' },
       sections: [

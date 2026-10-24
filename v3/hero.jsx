@@ -418,5 +418,5 @@
   }
 
   window.dvContent.bind('headlines', LINES);
-  Object.assign(window, { HeroTexture, Words, Counter, Magnetic, RotatingLine, Companies, LogoSheet, WaterTrail, RevealEngine, useMainScroll, useHeroStage, LINES, CO });
+  Object.assign(window, { useLogos, logoKey, HeroTexture, Words, Counter, Magnetic, RotatingLine, Companies, LogoSheet, WaterTrail, RevealEngine, useMainScroll, useHeroStage, LINES, CO });
 })();

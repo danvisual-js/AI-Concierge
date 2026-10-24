@@ -10,14 +10,18 @@
 // host that provides it); otherwise falls back to the rule set below, so a
 // deployed static copy still answers sensibly.
 (() => {
-  const FACTS = `You are the portfolio concierge for Dan Tieu, a product designer in the Bay Area (danielvisual.com).
+  const FACTS = `You are the portfolio concierge for Dan (Daniel) Tieu, a Senior Product Designer for healthcare, connected devices and digital platforms, based in the San Francisco Bay Area (danielvisual.com, danvisual.uxd@gmail.com).
 Speak as "I" for the concierge, refer to Dan in the third person. Warm, plain, brief — 1-3 sentences, no bullet lists, no emoji.
-Facts you may use: 12+ years across consumer health, wellness and AI-first orgs. Shipped the first AI-authorized prescription
-refill with an AI doctor in the US (Doctronic, 2026). Built GoodRx's first telehealth subscription product (2025) and drove
-funnel conversion to an all-time-high 26.1% from 15.6%. Led Estée Lauder's ShopEx search across 7+ luxury brands (lookup 47s→11s).
-Founding designer on Stripes Beauty, Naomi Watts' menopause brand, at Amyris (+25% conversion, -13% cart abandonment YoY).
-Also Quicken retirement calculator (abandon 81%→34%) and Sephora training for 30,000 advisors (94% weekly active).
-Open to senior and principal roles, remote or Bay Area. Never invent numbers, employers, or dates beyond these.`;
+Facts you may use: 12+ years in healthcare, consumer health and regulated digital products.
+Doctronic (Product Design Lead, AI Health, Feb–Jun 2026): shipped the first AI-authorized prescription refill in the US — intake, eligibility, AI consult, clinician review; designed the EHR medical-records experience and a trust-and-privacy layer (memory controls, delete-consult, incognito mode); prototyped AI workflows in Figma, Claude Code and Claude Design.
+GoodRx (Sr. Product Designer, Telehealth Subscription, Apr 2025–Jan 2026): shipped GoodRx's first telehealth subscription platform under HIPAA guardrails; redesigned the ED subscription funnel, signup CTR to an all-time high 26.1% from 15.6%; retention features (shipping frequency, order history, cancellation survey, delay next order). Won DANDA Awards Platinum (2026) for the Condition Subscription.
+The Estée Lauder Companies (Sr. Product Designer, Enterprise Design Systems, Oct 2023–Apr 2025): directed an enterprise interaction design library adopted across 7+ luxury brands; shipped Product Search & Filtering 2.0.
+Amyris (Sr. UI/UX Designer, Sep 2021–Aug 2023): founding designer for Stripes Beauty, Naomi Watts' menopause wellness brand (launched 2022); +25% conversion and up to 40% lower bounce across Biossance, JVN Hair, Rose Inc, Costa Brazil.
+Sephora (Interaction Designer, Education & Learning, Nov 2017–Jan 2021): built Sephora Education's first design system; ADA-ready mobile-first LMS migration, 4.5/5 satisfaction, 20K+ weekly course completions, serving 30K+ in-store hires; led 2–3 designers.
+Previous: Quicken (Sr. UI Designer, 2021), Amazon (Sr. Visual Designer, 2021), Old Navy (2016–17), Sephora Digital (freelance, 2015–16), Live Nation (2014–15).
+Education: UC Davis B.A. Media Technology; General Assembly Product Design; Google AI Professional Certificate (2026). Awards: Sephora Values In Action (2019), Adobe Creative Jam Top 10 (2021), SacHackathon 1st Place (2021).
+Skills: HIPAA, EHR design, trust & privacy patterns, accessibility, design systems, Figma, Claude Code, MCP connectors. Built Design Quest (playable RPG portfolio) and a VC stock screener solo with AI.
+Open to senior and lead roles. Never invent numbers, employers, or dates beyond these.`;
 
   const TOPICS = ['all', 'ai', 'numbers', 'zto', 'health', 'enterprise', 'ecom', 'resume', 'bio', 'quest', 'hiring', 'talk'];
 
@@ -29,9 +33,9 @@ Open to senior and principal roles, remote or Bay Area. Never invent numbers, em
     [/thank|thanks|thx|appreciate/i, 'Anytime. Anything else you want to see while you’re here?'],
     [/^(bye|goodbye|later|cheers)\b/i, 'Take care. If something comes up, the contact form is one tap away in the rail on the left.'],
     [/joke|funny|bored|entertain/i, 'Not my strong suit — but Design Quest is genuinely fun: three real decisions from Dan’s shipped work, and you find out what actually happened. Want to play?'],
-    [/weather|sports|stock|news|recipe|movie|politics/i, 'That one’s outside my job description — I only know Dan’s work. Happy to point you at a case study though.'],
+    [/politics/i, 'I’ll sit that one out — but happy to talk design, AI, or the Bay Area.'],
     [/salary|rate|comp|how much|pricing|cost/i, 'Compensation is a conversation for Dan directly, not something I’d guess at. If you send the role through the hiring form, he replies within 48 hours.'],
-    [/remote|relocat|where.*(based|live)|location|onsite|hybrid/i, 'Dan’s based in the Bay Area and open to remote or Bay Area roles, senior through principal.'],
+    [/remote|relocat|where.*(based|live)|location|onsite|hybrid/i, 'Dan’s based in the San Francisco Bay Area and open to remote or Bay Area roles, senior through lead.'],
     [/available|open to|looking for (work|a job)|freelance|contract/i, 'Yes — he’s open to senior and principal roles right now. If you have something specific, the hiring form gets to him directly.'],
     [/what tools|figma|software|stack/i, 'Figma for design, and he prototypes in code often enough that standards end up in the build rather than a library — that’s literally how the Doctronic work shipped.'],
     [/how.*(work|process|approach)|methodolog/i, 'Short version: he works in the open — real user calls, messy files, prototypes in front of engineers early — and treats constraints like legal review as a design problem rather than a blocker. The case studies show it step by step.'],
