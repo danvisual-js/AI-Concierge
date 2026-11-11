@@ -147,7 +147,7 @@
   // statements the visitor advances through. Remounting re-runs the word rise.
   const LINES = [
     { a: '', em: 'A product designer', b: 'in the Bay Area.' },
-    { a: '', em: '13+ years', b: 'in consumer health, wellness and AI.' },
+    { a: '', em: '12+ years', b: 'in luxury beauty, health & wellness and marketplaces.' },
     { a: 'I shipped the', em: 'first AI', b: 'Rx refill.' },
     { a: 'I design for', em: 'trust', b: 'in AI.' },
   ];

@@ -75,7 +75,7 @@ button[data-c="ok"]:hover{filter:brightness(1.15);background:var(--ms-accent,#6d
         for (const k of Object.keys(authored)) if (userSet[k]) overrides[k] = saved[k];
       }
       this.state = Object.assign({ src: '', type: '', userSet }, authored, overrides,
-        { src: saved.src || '', type: saved.type || '' });
+        { src: saved.src || this.getAttribute('src') || '', type: saved.type || '' });
       this._wiredAt = performance.now();
       // Blob-backed media resolves after the first paint.
       if (this.state.src.startsWith('data:') && !(window.dvCloud && window.dvCloud.enabled)) {
@@ -134,7 +134,7 @@ button[data-c="ok"]:hover{filter:brightness(1.15);background:var(--ms-accent,#6d
         ? `<div class="cov">${own ? '<span class="cov-m">drop an image or video</span>' : ''}</div>`
         : `<div class="ph"><b>${label}</b>${own ? '<i>drop an image or video</i>' : ''}</div>`;
       const media = s.src
-        ? (s.type.startsWith('video')
+        ? ((s.type.startsWith('video') || /\.(mp4|webm)(\?|$)/i.test(s.src))
           ? `<video src="${s.src}" autoplay muted loop playsinline></video>`
           : `<img src="${s.src}" alt="${label.replace(/"/g, '')}">`)
         : cover;

@@ -10,11 +10,15 @@
 // host that provides it); otherwise falls back to the rule set below, so a
 // deployed static copy still answers sensibly.
 (() => {
-  const FACTS = `You are the portfolio concierge for Dan (Daniel) Tieu, a Senior Product Designer for healthcare, connected devices and digital platforms, based in the San Francisco Bay Area (danielvisual.com, danvisual.uxd@gmail.com).
+  const LOCKED_TEXT = "Doctronic (Product Design Lead, AI Health, Feb–Jun 2026): shipped the first AI-authorized prescription refill in the US — intake, eligibility, AI consult, clinician review; designed the EHR medical-records experience and a trust-and-privacy layer (memory controls, delete-consult, incognito mode); prototyped AI workflows in Figma, Claude Code and Claude Design.\nGoodRx (Sr. Product Designer, Telehealth Subscription, Apr 2025–Jan 2026): shipped GoodRx's first telehealth subscription platform under HIPAA guardrails; redesigned the ED subscription funnel, signup CTR to an all-time high 26.1% from 15.6%; retention features (shipping frequency, order history, cancellation survey, delay next order). Won DANDA Awards Platinum (2026) for the Condition Subscription.";
+  const facts = () => {
+    const open = !window.DV_LOCK || window.DV_LOCK.isOpen() || document.body.dataset.owner === '1';
+    const LOCKED_FACTS = open ? LOCKED_TEXT
+      : 'Doctronic (Product Design Lead, AI Health, Feb–Jun 2026) and GoodRx (Sr. Product Designer, Telehealth Subscription, Apr 2025–Jan 2026): these two case studies are password-protected. You may name the company, role and dates only. Share no other details, numbers or outcomes; say the visitor can ask for the password.';
+    return `You are the portfolio concierge for Dan (Daniel) Tieu, a Senior Product Designer for healthcare, connected devices and digital platforms, based in the San Francisco Bay Area (danielvisual.com, danvisual.uxd@gmail.com).
 Speak as "I" for the concierge, refer to Dan in the third person. Warm, plain, brief — 1-3 sentences, no bullet lists, no emoji.
 Facts you may use: 12+ years in healthcare, consumer health and regulated digital products.
-Doctronic (Product Design Lead, AI Health, Feb–Jun 2026): shipped the first AI-authorized prescription refill in the US — intake, eligibility, AI consult, clinician review; designed the EHR medical-records experience and a trust-and-privacy layer (memory controls, delete-consult, incognito mode); prototyped AI workflows in Figma, Claude Code and Claude Design.
-GoodRx (Sr. Product Designer, Telehealth Subscription, Apr 2025–Jan 2026): shipped GoodRx's first telehealth subscription platform under HIPAA guardrails; redesigned the ED subscription funnel, signup CTR to an all-time high 26.1% from 15.6%; retention features (shipping frequency, order history, cancellation survey, delay next order). Won DANDA Awards Platinum (2026) for the Condition Subscription.
+${LOCKED_FACTS}
 The Estée Lauder Companies (Sr. Product Designer, Enterprise Design Systems, Oct 2023–Apr 2025): directed an enterprise interaction design library adopted across 7+ luxury brands; shipped Product Search & Filtering 2.0.
 Amyris (Sr. UI/UX Designer, Sep 2021–Aug 2023): founding designer for Stripes Beauty, Naomi Watts' menopause wellness brand (launched 2022); +25% conversion and up to 40% lower bounce across Biossance, JVN Hair, Rose Inc, Costa Brazil.
 Sephora (Interaction Designer, Education & Learning, Nov 2017–Jan 2021): built Sephora Education's first design system; ADA-ready mobile-first LMS migration, 4.5/5 satisfaction, 20K+ weekly course completions, serving 30K+ in-store hires; led 2–3 designers.
@@ -22,6 +26,7 @@ Previous: Quicken (Sr. UI Designer, 2021), Amazon (Sr. Visual Designer, 2021), O
 Education: UC Davis B.A. Media Technology; General Assembly Product Design; Google AI Professional Certificate (2026). Awards: Sephora Values In Action (2019), Adobe Creative Jam Top 10 (2021), SacHackathon 1st Place (2021).
 Skills: HIPAA, EHR design, trust & privacy patterns, accessibility, design systems, Figma, Claude Code, MCP connectors. Built Design Quest (playable RPG portfolio) and a VC stock screener solo with AI.
 Open to senior and lead roles. Never invent numbers, employers, or dates beyond these.`;
+  };
 
   const TOPICS = ['all', 'ai', 'numbers', 'zto', 'health', 'enterprise', 'ecom', 'resume', 'bio', 'quest', 'hiring', 'talk'];
 
@@ -47,6 +52,7 @@ Open to senior and lead roles. Never invent numbers, employers, or dates beyond 
   const NEAR = [
     [/goodrx|telehealth|subscription/i, 'goodrx', 'GoodRx is probably what you want — Dan owned that subscription product end to end and took the funnel to an all-time-high 26.1%.', 'Open the GoodRx case study?'],
     [/doctronic|refill|ai doctor/i, 'doctronic', 'That’s the Doctronic work — the first AI-authorized prescription refill flow in the US.', 'Open the Doctronic case study?'],
+    [/biossance|squalane|live ?shop/i, 'biossance', 'That’s the Biossance work — an accessible design system, a clearer cart and live shopping at 6.1% conversion.', 'Open the Biossance case study?'],
     [/stripes|naomi|menopause|amyris|beauty/i, 'stripes', 'Sounds like Stripes Beauty — Naomi Watts’ menopause brand, launched on schedule after half of design leadership left mid-project.', 'Open the Stripes case study?'],
     [/est[ée]e|shopex|lauder|search/i, 'shopex', 'That’s the Estée Lauder ShopEx work — enterprise search for 5,000 associates, lookup time cut from 47 seconds to 11.', 'Open the ShopEx case study?'],
     [/quicken|retirement|calculator|fintech/i, 'quicken', 'That’s Quicken — the retirement calculator he made interactive instead of submittable. Abandon rate went 81% to 34%.', 'Open the Quicken case study?'],
@@ -62,10 +68,10 @@ Open to senior and lead roles. Never invent numbers, employers, or dates beyond 
 
   // ---------- live model ----------
   async function live(q, history) {
-    const sys = `${FACTS}
+    const sys = `${facts()}
 
 The visitor typed a message. Decide what to do and reply with ONE JSON object, nothing else:
-{"reply": "...", "action": "route"|"confirm"|"talk", "topic": null|one of ${TOPICS.join('|')}, "caseId": null|"doctronic"|"goodrx"|"stripes"|"shopex"|"quicken"|"sephora"|"homebase", "ask": null|"short yes/no question"}
+{"reply": "...", "action": "route"|"confirm"|"talk", "topic": null|one of ${TOPICS.join('|')}, "caseId": null|"doctronic"|"goodrx"|"stripes"|"biossance"|"shopex"|"quicken"|"sephora"|"homebase", "ask": null|"short yes/no question"}
 
 - "route": they clearly want a section of the portfolio. Set topic. reply = one short sentence introducing it.
 - "confirm": you can tell roughly what they want but should check first, or they named one project. Set caseId (or topic) AND ask — a short yes/no question. Do not assume.

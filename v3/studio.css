@@ -38,7 +38,7 @@
 .st-in{width:100%;box-sizing:border-box;font:inherit;font-size:14.5px;line-height:1.5;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:10px 12px;resize:vertical}
 .st-in:focus,.st-title:focus{outline:2px solid color-mix(in oklab,var(--accent) 45%,transparent);outline-offset:0;border-color:var(--accent)}
 .st-in.big{font-size:18px;letter-spacing:-.01em}
-.st-title{width:100%;box-sizing:border-box;font:inherit;font-size:clamp(26px,3vw,34px);font-weight:600;letter-spacing:-.03em;line-height:1.15;border:0;border-bottom:1px solid transparent;background:none;color:var(--ink);padding:4px 0;border-radius:0}
+.st-title{width:100%;box-sizing:border-box;font:inherit;font-size:clamp(26px,3vw,34px);font-weight:600;letter-spacing:-.015em;line-height:1.15;border:0;border-bottom:1px solid transparent;background:none;color:var(--ink);padding:4px 0;border-radius:0}
 .st-title:hover{border-bottom-color:var(--line)}
 .st-help{margin:0;font-size:12px;line-height:1.5;color:var(--faint)}
 .st-info{font-size:13.5px;color:var(--dim);padding:9px 12px;border-radius:9px;background:var(--surface-2)}

@@ -7,11 +7,11 @@
   const DEMOS = [
     {
       id: 'screener', name: 'AI Stock Market Screener', kind: 'Fintech tool',
-      tag: 'A screener that answers “is this worth my afternoon?” before it shows you a single chart.',
+      tag: 'A free, mobile-first market screener with charts, analyst data and earnings — every number explains itself.',
       url: 'https://vc-stockscreen-ivory.vercel.app/', caseId: 'screener',
       note: 'Designed and built solo with AI-assisted development.',
       hint: 'Live app · pick a ticker',
-      lede: 'Screeners assume you already know what you are looking for. This one starts from a question instead of a filter — type a thesis, get a ranked shortlist with the reasoning attached, then drill into charts only if the shortlist earns it. Built solo, design through deploy, in about three weeks.',
+      lede: 'Good market data costs hundreds a month and the free tools aren’t built for phones. This one is: tap a stock for charts, analyst consensus and news, check its Health Check flags, or run a Trader Playbook across 50 popular stocks. Designed and built solo with Claude in two weeks, then rebuilt to teach.',
     },
     {
       id: 'designquest', name: 'Design Quest', kind: 'Playable RPG portfolio',
@@ -19,7 +19,7 @@
       url: 'https://danvisual-flame.vercel.app/', caseId: 'designquest',
       note: 'Concept to shipped in days with AI-assisted development.',
       hint: 'Live game · arrow keys to move',
-      lede: 'A portfolio nobody scrolls. Each case study is a building on a map — walk in and the work is on the walls, so the browsing itself is the proof of craft. Tile art, movement, collision and dialogue built from scratch; concept to playable in four days.',
+      lede: 'A portfolio nobody scrolls. Each case study is a building on a map — walk in and the work is on the walls, so the browsing itself is the proof of craft. Tile art, movement, collision and dialogue built from scratch; concept to playable in days.',
     },
   ];
 

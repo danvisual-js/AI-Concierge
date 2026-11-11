@@ -22,7 +22,7 @@
     { id: 'all', q: 'Walk me through Dan’s best work', primary: true, kind: 'cases', cat: null, theme: 'base',
       say: 'Six client case studies plus a hackathon build, newest first. Each leads with the story, then the UX record — problem, discovery, design, solution, testing. Tap any card to read it.' },
     { id: 'personal', q: 'What has he built with AI?', primary: true, kind: 'demos', theme: 'ai',
-      say: 'Two things built outside client work — a verdict-first stock screener and a portfolio you walk through as an RPG. Both designed and shipped solo with AI-assisted development, and both are live and playable right now.' },
+      say: 'Two things built outside client work — a mobile-first stock screener that explains its numbers and a portfolio you walk through as an RPG. Both designed and shipped solo with AI-assisted development, and both are live and playable right now.' },
     { id: 'play', q: 'Show me his visual design work', more: true, kind: 'play', theme: 'base',
       say: 'Five separate visual design roles — Sephora, Old Navy, Amazon WFS, Live Nation and Vax Smart. Each one its own client and its own design language, and deliberately kept apart from the UX case studies.' },
     { id: 'resume', q: 'Show me his résumé and experience', more: true, kind: 'panel', panel: 'resume', theme: 'enterprise',
