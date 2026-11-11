@@ -87,6 +87,17 @@
     // Remote is the source of truth for every key it has. Local-only keys are
     // left alone so unmigrated work on the owner's machine isn't wiped.
     (data || []).forEach(r => rawSet.call(localStorage, r.key, r.value));
+    // Visitors can't have unpublished work, so a synced key the cloud no longer
+    // has is stale: drop it so a reset in the database reaches every browser.
+    const have = new Set((data || []).map(r => r.key));
+    const stale = Object.keys(localStorage).filter(k => SYNC(k) && !have.has(k));
+    if (!isOwner()) stale.forEach(k => rawRemove.call(localStorage, k));
+    // One-time purge (Nov 2026): the old saved case-study copy and GoodRx header
+    // were removed from the database; clear them from the owner's browser too.
+    if (!localStorage.getItem('dv-purge-20261111')) {
+      ['dv3.c.projects', 'dv3.c.projects.prev', 'ms:r-goodrx-hero'].forEach(k => !have.has(k) && rawRemove.call(localStorage, k));
+      rawSet.call(localStorage, 'dv-purge-20261111', '1');
+    }
   };
 
   // One-time push of everything made in local mode: blobs and data-URLs are
