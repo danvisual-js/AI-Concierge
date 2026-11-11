@@ -25,7 +25,8 @@
     return (
       <span className="x-thumb" style={noShape ? undefined : { aspectRatio: f.shape }}>
         {m && m.src ? <MediaFill m={m} style={fxStyle(f)} />
-          : fig ? <iframe className="x-fig" src={embedUrl(fig.link)} title={p.client + ' Figma'} loading="lazy" tabIndex={-1} />
+          : (p.thumb || p.hero) ? <img src={p.thumb || p.hero} alt="" style={fxStyle(f)} />
+          : fig ?<iframe className="x-fig" src={embedUrl(fig.link)} title={p.client + ' Figma'} loading="lazy" tabIndex={-1} />
           : owner ? <media-slot id={`case-${p.id}`} ratio={f.shape} cover lock size="full" frame="none" fit="cover" label={`${p.client} — cover image`}></media-slot>
           : <span className="x-tblank">{p.client}</span>}
         {children}
@@ -47,6 +48,26 @@
           <span className="x-mono">{i != null ? String(i + 1).padStart(2, '0') + ' · ' : ''}{p.client} · {p.year}</span>
           <h3>{p.title}</h3>
           <span className="x-tag">{p.discipline}</span>
+        </span>
+      </button>
+    );
+  }
+
+  // 1-up row: image and text side by side, alternating sides down the list
+  const teaser = t => { const x = String(t || '').replace(/\*\*/g, '').replace(/\s+/g, ' ').trim(); const m = x.match(/^(.{40,220}?[.!?])(\s|$)/); return m ? m[1] : x.slice(0, 200); };
+  function WorkRow({ p, i, onOpen, owner }) {
+    return (
+      <button className={'x-row' + (i % 2 ? ' flip' : '')} onClick={() => onOpen(p.id)} aria-label={`${p.client}: ${p.title}. ${p.headline.v} ${p.headline.l}. Open case study`}>
+        <span className="x-rmed">
+          <Thumb p={p} owner={owner} />
+          <i className="x-blob a" aria-hidden="true" /><i className="x-blob b" aria-hidden="true" />
+        </span>
+        <span className="x-rb">
+          <span className="x-mono">{String(i + 1).padStart(2, '0')} · {p.client} · {p.year}{p.locked && !owner && <span className="x-rlock"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2" /><path d="M8 11V7a4 4 0 0 1 8 0v4" /></svg>Password</span>}</span>
+          <h3>{p.title}</h3>
+          <span className="x-rt">{teaser(p.story)}</span>
+          <span className="x-rs"><b>{p.headline.v}</b><span>{p.headline.l}</span></span>
+          <span className="x-rgo">Read case study <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" /></svg></span>
         </span>
       </button>
     );
@@ -132,8 +153,29 @@
     const big = it => it && it.kind === 'panel' && BIG.includes(it.panel);
     const reply = it => { push({ say: it.say, intent: it }); if (big(it)) setTimeout(() => onPanel(it.panel), 350); };
     const answer = (it, q) => { push({ me: q }); setBusy(true); setTimeout(() => { setBusy(false); reply(it); }, 650); };
-    const send = async q => {
-      push({ me: q }); setBusy(true);
+    // password-protected cases: ask for the password in a follow-up before answering
+    const [pend, setPend] = useState(null); const pendRef = useRef(null); pendRef.current = pend;
+    const lockedFor = q => { const L = window.DV_LOCK; return L && !owner && !L.isOpen() && L.mentions(q); };
+    const send = async (q, quiet) => {
+      const L = window.DV_LOCK, waiting = pendRef.current;
+      if (waiting && L && !quiet) {
+        if (/\s/.test(q.trim())) setPend(null); // a full sentence, not a password: drop the request and answer normally
+        else {
+          push({ me: '•'.repeat(Math.min(12, q.length)) }); setBusy(true);
+          const ok = await L.unlock(q); await new Promise(res => setTimeout(res, 450)); setBusy(false);
+          if (!ok) { push({ say: 'That password didn’t work. Try again, or ask me about something else.' }); return; }
+          setPend(null); push({ say: 'Thanks, you’re in. Both protected case studies are unlocked for this visit.' });
+          return send(waiting, true);
+        }
+      }
+      if (!quiet) push({ me: q });
+      if (lockedFor(q)) {
+        setBusy(true); await new Promise(res => setTimeout(res, 450)); setBusy(false);
+        setPend(q); push({ say: 'That’s one of Dan’s password-protected case studies. What’s the password? If you don’t have it, reach out through the contact form and Dan will share it.' });
+        setTimeout(() => inp.current && inp.current.focus({ preventScroll: true }), 60);
+        return;
+      }
+      setBusy(true);
       const low = q.toLowerCase();
       const named = PROJECTS.find(p => low.includes(p.client.toLowerCase()) || low.includes(p.id));
       if (named && /\b(show|open|read|see|launch|view|walk|tell|case|play)\b/i.test(q)) {
@@ -159,7 +201,8 @@
     };
     const submit = e => { e.preventDefault(); const q = v.trim(); if (!q || busy) return; setV(''); send(q); };
     const accept = c => {
-      if (c.caseId) { const p = PROJECTS.find(x => x.id === c.caseId); push({ me: 'Yes, open it' }); if (p) { push({ say: `Opening ${p.client}.`, intent: { kind: 'cases', only: [p.id] } }); setTimeout(() => onRead(p.id), 450); } }
+      if (c.caseId) { const p = PROJECTS.find(x => x.id === c.caseId); push({ me: 'Yes, open it' });
+        if (p && p.locked && lockedFor(p.client)) { setPend('Tell me about ' + p.client); push({ say: 'That case study is password-protected. What’s the password?' }); return; } if (p) { push({ say: `Opening ${p.client}.`, intent: { kind: 'cases', only: [p.id] } }); setTimeout(() => onRead(p.id), 450); } }
       else { const it = byId(c.topic || 'all') || I()[0]; answer(it, 'Yes — ' + it.q.toLowerCase()); }
     };
     const work = p => !p.personal && !p.hackathon;
@@ -181,10 +224,10 @@
       if (it.kind === 'panel' && window.PANELS && PANELS[it.panel]) return <div className="x-cg-panel">{React.createElement(PANELS[it.panel])}</div>;
       if (it.kind === 'play') return <>
         <div className="x-cg-grid">{(window.PLAY || []).map(p => (
-          <a key={p.id} className="x-card sm" href={p.url} target="_blank" rel="noreferrer">
-            <span className="x-thumb"><media-slot id={`play-${p.id}`} ratio="16/10" cover lock size="full" frame="none" fit="cover" label={`${p.co} — ${p.role}`}></media-slot></span>
+          <button key={p.id} className="x-card sm" onClick={() => window.__vis && window.__vis(p.id)} aria-label={`${p.co}, ${p.role}. Open`}>
+            <span className="x-thumb"><PlayThumb v={p} /></span>
             <span className="x-cb"><span className="x-mono">{p.role}</span><h3>{p.co}</h3></span>
-          </a>))}</div>
+          </button>))}</div>
         {last && <div className="x-acts"><button className="x-chip v" onClick={() => onGo('visual')}>Open the gallery ↓</button></div>}
       </>;
       if (it.kind === 'demos') return <>
@@ -231,7 +274,7 @@
         <div className="x-cg-f">
           <form onSubmit={submit}>
             <label htmlFor="x-cg-in" className="x-sr">Message the concierge</label>
-            <input id="x-cg-in" ref={inp} value={v} onChange={e => setV(e.target.value)} placeholder="Ask a follow-up…" autoComplete="off" />
+            <input id="x-cg-in" ref={inp} value={v} onChange={e => setV(e.target.value)} type={pend ? 'password' : 'text'} placeholder={pend ? 'Enter the password…' : 'Ask a follow-up…'} autoComplete="off" />
             <button className="x-send" aria-label="Send"><Arrow /></button>
           </form>
         </div>
@@ -240,5 +283,5 @@
     );
   }
 
-  Object.assign(window, { Thumb, WorkCard, AskBar, Concierge, Spark });
+  Object.assign(window, { Thumb, WorkCard, WorkRow, AskBar, Concierge, Spark });
 })();

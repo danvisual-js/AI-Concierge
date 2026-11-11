@@ -22,7 +22,9 @@
     { v: '+25%', n: 25, pre: '+', suf: '%', l: 'conversion across a health & wellness portfolio.', s: 'Amyris · bounce down up to 40%', id: 'stripes' },
   ];
   const reduce = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const go = id => { const el = document.getElementById(id); if (el) window.scrollTo({ top: id === 'home' ? 0 : el.getBoundingClientRect().top + scrollY - 56, behavior: reduce() ? 'auto' : 'smooth' }); };
+  const FRAMED = (() => { try { return window.self !== window.top; } catch (e) { return true; } })();
+  const demoUrl = id => { const d = (window.DEMOS || []).find(x => x.id === id); return d ? d.url : ''; };
+  const go = id => { if (id === 'visual' || id === 'work') { window.__workTab && window.__workTab(id === 'visual' ? 'visual' : 'cases'); id = 'work'; } const el = document.getElementById(id); if (el) window.scrollTo({ top: id === 'home' ? 0 : el.getBoundingClientRect().top + scrollY - 56, behavior: reduce() ? 'auto' : 'smooth' }); };
   const prog = el => { const r = el.getBoundingClientRect(); return Math.min(1, Math.max(0, -r.top / (r.height - innerHeight))); };
   const seek = (el, p) => window.scrollTo({ top: el.getBoundingClientRect().top + scrollY + p * (el.offsetHeight - innerHeight) + 2, behavior: reduce() ? 'auto' : 'smooth' });
 
@@ -45,7 +47,7 @@
   function Rotator({ i }) {
     const L = window.LINES || [];
     const l = L[i]; if (!l) return null;
-    return <p className="x-rot" aria-live="off"><span key={i}>{l.a ? l.a + ' ' : ''}<em>{l.em}</em>{l.b ? ' ' + l.b : ''}</span></p>;
+    return <h1 className="x-rot x-hl" aria-live="off"><span key={i}>{l.a ? l.a + ' ' : ''}<em>{l.em}</em>{l.b ? ' ' + l.b : ''}</span></h1>;
   }
 
   function HeroBg({ i }) {
@@ -124,34 +126,57 @@
     </>;
   }
 
-  const SBG = [['#15131a', '#fff', '#a99bff'], ['#4b32c9', '#fff', '#ffffff'], ['#dde8e2', '#15131a', '#2f6f5e']];
+  const SBG = [['#ccd5ff', '#16181d', '#3d5cf5'], ['#2f4fe0', '#ffffff', '#ffffff'], ['#fdf0f7', '#16181d', '#d6409f']];
   function Stats({ onRead, owner }) {
     const ref = useRef(null);
     const [on, setOn] = useState(-1);
     useEffect(() => {
+      // Apple-style scrollytelling: each stat pins for a screen of scrolling. Its progress (--p, 0→1)
+      // follows the scroll, eased toward the target every frame so motion stays smooth (~1–2 s to settle).
       const root = ref.current; if (!root) return;
-      const io = new IntersectionObserver(es => es.forEach(e => {
-        if (!e.isIntersecting) return; io.unobserve(e.target);
-        const b = e.target.querySelector('b'), s = STATS[+e.target.dataset.i];
-        e.target.classList.add('in');
-        if (s.n == null || reduce()) return;
-        const dec = String(s.n).includes('.') ? 1 : 0, t0 = performance.now();
-        const step = now => { const k = Math.min(1, (now - t0) / 1300), v = s.n * (1 - Math.pow(1 - k, 3));
-          b.textContent = (s.pre || '') + v.toFixed(dec) + (s.suf || ''); if (k < 1) requestAnimationFrame(step); };
-        b.textContent = (s.pre || '') + (0).toFixed(dec) + (s.suf || ''); requestAnimationFrame(step);
-      }), { threshold: .55 });
-      const rows = root.querySelectorAll('.x-srow'); rows.forEach(r => io.observe(r));
-      let raf = 0;
-      const run = () => { raf = 0; let a = -1; rows.forEach((r, i) => { const rc = r.getBoundingClientRect(); if (rc.top < innerHeight * .6 && rc.bottom > innerHeight * .4) a = i; }); setOn(a); };
-      const sc = () => { if (!raf) raf = requestAnimationFrame(run); };
-      addEventListener('scroll', sc, { passive: true }); run();
-      return () => { io.disconnect(); removeEventListener('scroll', sc); };
+      const rows = [...root.querySelectorAll('.x-srow')];
+      const rm = reduce();
+      const fmt = (s, v) => (s.pre || '') + v.toFixed(String(s.n).includes('.') ? 1 : 0) + (s.suf || '');
+      const cur = rows.map(() => 0), tgt = rows.map(() => 0);
+      let raf = 0, last = -2;
+      const measure = () => {
+        const H = innerHeight, top = 48; let a = -1;
+        // hero gradient stays fixed behind the fold and fades out as the first stat slides in
+        const r0 = rows[0] && rows[0].getBoundingClientRect();
+        if (r0) document.documentElement.style.setProperty('--glow', Math.min(1, Math.max(0, (r0.top - 64) / (H * .55))).toFixed(3));
+        if (r0) root.style.setProperty('--e', Math.min(1, Math.max(0, (H - r0.top) / (H - 64))).toFixed(3));
+        rows.forEach((r, i) => {
+          const rc = r.getBoundingClientRect();
+          const span = Math.max(1, rc.height - (H - top));
+          // starts once the panel is fully on screen and pinned, finishes ~70% through the pinned scroll
+          tgt[i] = rm ? 1 : Math.min(1, Math.max(0, (top - rc.top) / (span * .7)));
+          if (rc.top < H * .55 && rc.bottom > H * .45) a = i;
+        });
+        if (a !== last) { last = a; setOn(a); }
+      };
+      const tick = () => {
+        raf = 0; measure(); let moving = false;
+        rows.forEach((r, i) => {
+          const d = tgt[i] - cur[i];
+          cur[i] = Math.abs(d) < .0008 ? tgt[i] : cur[i] + d * .055;
+          if (cur[i] !== tgt[i]) moving = true;
+          const p = cur[i];
+          r.style.setProperty('--p', p.toFixed(4));
+          r.classList.add('in');
+          const s = STATS[i], b = r.querySelector('.x-stxt b');
+          if (b && s && s.n != null) { const k = Math.min(1, Math.max(0, (p - .2) / .6)); b.textContent = fmt(s, s.n * (1 - Math.pow(1 - k, 3))); }
+        });
+        if (moving) raf = requestAnimationFrame(tick);
+      };
+      const sc = () => { if (!raf) raf = requestAnimationFrame(tick); };
+      addEventListener('scroll', sc, { passive: true }); addEventListener('resize', sc); sc();
+      return () => { removeEventListener('scroll', sc); removeEventListener('resize', sc); cancelAnimationFrame(raf); };
     }, []);
-    const c = SBG[on] || ['#fff', 'var(--xi)', 'var(--xv)'];
+    const c = SBG[on] || ['transparent', 'var(--xi)', 'var(--xv)'];
     return (
-      <section id="stats" className="x-stats" ref={ref} aria-label="Results in numbers" style={{ background: c[0], color: c[1], '--ac': c[2] }}>
+      <section id="stats" className="x-stats" ref={ref} aria-label="Results in numbers" style={{ background: on <= 0 ? 'rgb(204 213 255 / var(--e, 0))' : c[0], color: c[1], '--ac': c[2] }}>
         {STATS.map((s, i) => (
-          <div className="x-srow x-wrap" key={s.v} data-i={i}>
+          <div className="x-srow" key={s.v} data-i={i}><div className="x-spin x-wrap">
             <StatViz i={i} />
             <StatBg i={i} owner={owner} />
             <div className="x-stxt">
@@ -161,7 +186,7 @@
             <span className="x-mono x-sm">{s.s}</span>
             {s.id && <button onClick={() => onRead(s.id)}>See the work →</button>}
             </div>
-          </div>
+          </div></div>
         ))}
       </section>
     );
@@ -195,7 +220,7 @@
           onKeyDown={e => { if (e.key === 'ArrowRight') { e.preventDefault(); to(i + 1); } if (e.key === 'ArrowLeft') { e.preventDefault(); to(i - 1); } }}>
           {PLAY.map((v, k) => (
             <button className="x-card x-vt" key={v.id} onClick={() => onOpen(v.id)} aria-label={`${v.co}, ${v.role}. Open`} onFocus={() => k !== i && to(k)}>
-              <span className="x-thumb"><media-slot id={`play-${v.id}`} ratio="16/10" cover lock size="full" frame="none" fit="cover" label={`${v.co} — ${v.role}`}></media-slot></span>
+              <span className="x-thumb"><PlayThumb v={v} /></span>
               <span className="x-cb"><span className="x-mono">{String(k + 1).padStart(2, '0')}{v.year ? ' · ' + v.year : ''}</span><h3>{v.co}</h3><span className="x-tag">{v.role}</span></span>
             </button>
           ))}
@@ -229,8 +254,11 @@
     const id = 'phone-' + p.id;
     const m = useMedia(id), hero = useMedia('r-' + p.id + '-hero');
     const f = getFx(id, { shape: '9/19.5' });
-    const link = m && m.link;
-    const live = !!(link && (focus || preview) && canEmbed(id, link));
+    const demoUrl = p.demo && window.DEMOS ? ((DEMOS.find(d => d.id === p.demo) || {}).url || '') : '';
+    const link = (m && m.link) || demoUrl;
+    const [play, setPlay] = useState(false);
+    useEffect(() => { if (!focus) setPlay(false); }, [focus]);
+    const live = !!(link && (play || preview) && canEmbed(id, link));
     const dark = !link;
     let host = ''; try { host = link ? new URL(link).host.replace(/^www\./, '') : ''; } catch (e) {}
     const edit = e => { e.stopPropagation(); __editMedia({ title: p.client + ' — phone screen', link: true, ctx: 'phone', render: () => <Phone p={p} focus preview />,
@@ -243,9 +271,11 @@
           <span className="x-scr">
             {live ? <LiveFrame url={link} />
               : m && m.src ? <MediaFill m={m} style={fxStyle(f)} />
-              : !link && hero && hero.src ? <MediaFill m={hero} style={{ objectFit: 'cover' }} />
+              : p.phone ? <img src={p.phone} alt="" style={{ objectFit: 'cover', objectPosition: 'top' }} />
+              : hero && hero.src ? <MediaFill m={hero} style={{ objectFit: 'cover' }} />
               : <span className="x-pblank">{p.client}</span>}
             {host && !isFigma(link) && !live && <span className="x-safari" aria-hidden="true"><b>{host}</b></span>}
+            {link && focus && !live && !preview && (FRAMED ? <a className="x-play" href={link} target="_blank" rel="noopener" onClick={e => e.stopPropagation()}>Open live app ↗</a> : canEmbed(id, link) && <button className="x-play" onClick={e => { e.stopPropagation(); setPlay(true); }}>▶ Try it live</button>)}
           </span>
           <span className="x-hbar" aria-hidden="true"><i /></span>
         </span>
@@ -287,7 +317,7 @@
         {p.extra && <p><Ed k={'lab-' + p.id + '-d'} d="Add a one-line description" /></p>}
         {mode === 'focus' && desc && <p>{desc}</p>}
         <div className="x-btns">
-          {(demo || link) && <button className="x-btn k" onClick={() => demo ? onStage(demo.id) : onFull({ url: link, title: p.client })}>Full screen ⤢</button>}
+          {(demo || link) && (FRAMED ? <a className="x-btn k" href={demo ? demo.url : link} target="_blank" rel="noopener">Open full screen ↗</a> : <button className="x-btn k" onClick={() => demo ? onStage(demo.id) : onFull({ url: link, title: p.client })}>Full screen ⤢</button>)}
           {!p.extra && <button className="x-btn" onClick={() => onRead(p.id)}>The story</button>}
         </div>
       </div>
@@ -430,6 +460,8 @@
     const [acct, setAcct] = useState(false), [studio, setStudio] = useState(false), [logosOpen, setLogos] = useState(false), [stage, setStage] = useState(null);
     const [owner, setOwner] = useState(document.body.dataset.owner === '1');
     const [more, setMore] = useState(false);
+    const [wtab, setWtab] = useState('cases');
+    useEffect(() => { window.__workTab = setWtab; return () => { window.__workTab = null; }; }, []);
     const [line, setLine] = useState(0), [pause, setPause] = useState(false), [ed, setEd] = useState(null);
     useEffect(() => { window.__editMedia = cfg => setEd(cfg); }, []);
     useEffect(() => { const n = (window.LINES || []).length; if (n < 2 || reduce() || pause) return; const t = setInterval(() => setLine(x => (x + 1) % n), 3800); return () => clearInterval(t); }, [pause]);
@@ -445,7 +477,7 @@
     const cgOpenRef = useRef(false); cgOpenRef.current = cgOpen;
 
     useEffect(() => {
-      window.__read = read; window.__studio = () => setStudio(true); window.__stage = openStage;
+      window.__read = read; window.__vis = openVis; window.__studio = () => setStudio(true); window.__stage = openStage;
       window.__ask = q => doAsk({ q });
       const r = () => setRev(x => x + 1); addEventListener('content-change', r);
       const o = () => setOwner(document.body.dataset.owner === '1'); addEventListener('owner-change', o);
@@ -486,6 +518,8 @@
     }, []);
 
     const cases = PROJECTS.filter(p => !p.personal && !p.hackathon);
+    const PLAYS = window.PLAY || [];
+    const WTABS = [['cases', 'Case studies'], ['visual', 'Visual design']];
     const shown = more ? cases : cases.slice(0, 4);
     const primary = (window.INTENTS || []).filter(i => i.primary);
 
@@ -515,7 +549,8 @@
 
         <div className="x-main" role="main" id="main">
           <header className="x-top x-wrap">
-            <Ed k="topline" className="x-st" d="Dan Tieu · Senior Product Designer · open to work" />
+            <a className="x-logo" href="#home" onClick={e => { e.preventDefault(); go('home'); }} aria-label="Daniel Tieu — home">Daniel Tieu</a>
+            <span className="x-avail"><i aria-hidden="true" />Open to work</span>
             <div className="x-btns">
               <button className="x-btn" onClick={() => openPanel('resume')}>Résumé</button>
               <button className="x-btn k" onClick={() => go('talk')}>Get in touch</button>
@@ -524,9 +559,9 @@
 
           <section id="home" className="x-hero x-wrap" data-screen-label="Home">
             <HeroBg i={line} />
+            <div className="x-glow" aria-hidden="true"><i /><i /><i /></div>
             {owner && <button className="x-edbtn x-edbtn-hero" onClick={() => editHero(line, setPause, setLine)}>Edit background</button>}
-            <div className="x-eyebrow x-mono"><Ed k="heroEyebrow" d="Product design · Healthcare × AI · 12+ years" /></div>
-            <Name />
+            <div className="x-eyebrow x-mono"><Ed k="heroEyebrow" d="Product design · Beauty, health & marketplaces · 12+ years" /></div>
             <Rotator i={line} />
             <Logos onRead={read} />
             <div className="x-fold">
@@ -534,33 +569,29 @@
                 <AskBar id="ask-hero" onAsk={doAsk} />
                 <div className="x-qs">{primary.map(it => <button key={it.id} className="x-chip" onClick={() => doAsk({ intent: it.id })}>{it.q}</button>)}</div>
               </div>
-              <button className="x-hint" style={{ opacity: floatOn ? 0 : 1 }} onClick={() => go('stats')} aria-label="Scroll to results"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg></button>
+              <button className="x-hint" style={{ opacity: floatOn ? 0 : 1 }} onClick={() => { const r = document.querySelector('.x-srow'); if (!r) return go('stats'); const rc = r.getBoundingClientRect(), H = innerHeight; window.scrollTo({ top: scrollY + rc.top - 48 + Math.max(0, rc.height - (H - 48)) * .72, behavior: reduce() ? 'auto' : 'smooth' }); }} aria-label="Scroll to results"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M6 13l6 6 6-6" /></svg></button>
             </div>
           </section>
 
           <Stats onRead={read} owner={owner} />
 
           <section id="work" className="x-wrap" data-screen-label="Case studies">
-            <div className="x-sh x-rv"><div><Ed k="workEyebrow" className="x-mono" d="Selected work" /><h2>Case studies<sup>({String(cases.length).padStart(2, '0')})</sup></h2></div>{owner ? <div className="x-stg">
-              <label><span className="x-mono">Stagger {Math.round((v5().stagger ?? .5) * 100)}%</span>
-                <input type="range" min="0" max="1" step=".05" value={v5().stagger ?? .5} onChange={e => saveV5({ stagger: +e.target.value })} /></label>
-              <label><span className="x-mono">Spacing {Math.round((v5().gapY ?? 1) * 100)}%</span>
-                <input type="range" min="0" max="2.5" step=".05" value={v5().gapY ?? 1} onChange={e => saveV5({ gapY: +e.target.value })} /></label></div>
-              : <p className="x-shp">Hover for the headline number. Each opens as a full case study.</p>}</div>
-            <div className="x-grid" style={{ paddingBottom: `calc(${v5().stagger ?? .5} * clamp(120px, 20vw, 320px) * .6 + 48px)` }}>
-              {[0, 1].map(col => (
-                <div className={'x-col c' + col} key={col} data-par={col ? String(.12 * (v5().stagger ?? .5)) : '0'} style={{ gap: `calc(28px + ${v5().gapY ?? 1} * clamp(40px, 5vw, 80px))`, paddingTop: col ? `calc(${v5().stagger ?? .5} * clamp(120px, 20vw, 320px))` : 0 }}>
-                  {shown.map((p, i) => i % 2 !== col ? null : (
-                    <div key={p.id} className="x-rv x-rvc" style={{ order: i }}><WorkCard p={p} i={i} owner={owner} onOpen={read} /></div>
-                  ))}
-                </div>
-              ))}
-            </div>
-            {cases.length > 4 && <div className="x-more"><button className="x-btn lg" onClick={() => setMore(m => !m)} aria-expanded={more}>{more ? 'Show fewer' : `Show all ${cases.length} case studies`}</button></div>}
+            <div className="x-sh x-sh-tabs x-rv"><div className="x-seg" role="tablist" aria-label="Choose work type">{WTABS.map(([k, l]) => <button key={k} role="tab" aria-selected={wtab === k} className={wtab === k ? 'on' : ''} onClick={() => setWtab(k)}>{l}</button>)}<i className="x-seg-pill" style={{ '--i': WTABS.findIndex(t => t[0] === wtab), '--n': WTABS.length }} /></div><div><Ed k="workEyebrow" className="x-mono" d="Selected work" /><h2>{wtab === 'cases' ? 'Case studies' : 'Visual design'}<sup>({String(wtab === 'cases' ? cases.length : PLAYS.length).padStart(2, '0')})</sup></h2></div></div>
+            {wtab === 'cases' ? <>
+              <div className="x-rows">
+                {shown.map((p, i) => <div key={p.id} className="x-rin" style={{ '--k': Math.min(i, 3) }}><WorkRow p={p} i={i} owner={owner} onOpen={read} /></div>)}
+              </div>
+              {cases.length > 4 && <div className="x-more"><button className="x-btn lg" onClick={() => setMore(m => !m)} aria-expanded={more}>{more ? 'Show fewer' : `Show all ${cases.length} case studies`}</button></div>}
+            </> : <div className="x-vgrid">
+              {PLAYS.map((v, k) => <div key={v.id} className="x-rin" style={{ '--k': Math.min(k, 3) }}><button className="x-card" onClick={() => openVis(v.id)} aria-label={`${v.co}, ${v.role}. Open`}>
+                <span className="x-thumb"><PlayThumb v={v} /></span>
+                <span className="x-cb"><span className="x-mono">{String(k + 1).padStart(2, '0')}{v.year ? ' · ' + v.year : ''}</span><h3>{v.co}</h3><span className="x-tag">{v.role}</span></span>
+              </button></div>)}
+            </div>}
           </section>
 
           <Labs onRead={read} onStage={openStage} onFull={setFull} owner={owner} />
-          <Visual onOpen={openVis} />
+          
 
           <Talk onHiring={() => doAsk({ intent: 'hiring' })} />
         </div>
